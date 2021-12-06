@@ -251,7 +251,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     },
 
     # Downstream Graal branch to test against.
-    local downstream_branch = "cpu/graal-vm/21.3",
+    local downstream_branch = "me/GR-34886_espresso",
 
     local clone_graal = {
         run+: [
@@ -310,6 +310,9 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
 
     # Build LibGraal
     BuildLibGraal(conf):: conf + clone_graal + requireLabsJDK(conf) + {
+        packages+: {
+            "mx": "==5.310.0",
+        },
         name: "build-libgraal" + conf.name,
         timelimit: "1:00:00",
         logs: ["*.log"],
