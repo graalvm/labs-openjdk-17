@@ -20,6 +20,9 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
             MAKE : "make",
             ZLIB_BUNDLING: "system",
         },
+        packages+: {
+            "mx": "==5.310.0"
+        },
     },
 
     Windows:: self.OSBase + {
