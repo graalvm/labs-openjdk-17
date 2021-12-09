@@ -9,7 +9,13 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     overlay: "de70fec80b4947d9ef25c39e059b01ef38dfc387",
     specVersion: "2",
 
-    OSBase:: {
+    local mx = {
+      packages+: {
+          "mx": "==5.310.0"
+      },
+    },
+
+    OSBase:: mx + {
         path(unixpath):: unixpath,
         exe(unixpath):: unixpath,
         jdk_home(java_home):: self.path(java_home),
@@ -19,9 +25,6 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
             JIB_PATH: "${PATH}",
             MAKE : "make",
             ZLIB_BUNDLING: "system",
-        },
-        packages+: {
-            "mx": "==5.310.0"
         },
     },
 
@@ -34,7 +37,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         downloads+: {
             CYGWIN: {name: "cygwin", version: "3.0.7", platformspecific: true},
         },
-        packages : {
+        packages+: {
             # devkit_platform_revisions in make/conf/jib-profiles.js
             "devkit:VS2019-16.9.3+1" : "==0"
         },
@@ -62,7 +65,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
             image: defs.linux_docker_image_amd64,
             mount_modules: !for_jdk_build # needed for installing the devtoolset package below
         },
-        packages : if for_jdk_build then {
+        packages+: if for_jdk_build then {
             # devkit_platform_revisions in make/conf/jib-profiles.js
             "devkit:gcc10.3.0-OL6.4+1" : "==0"
         } else {
@@ -72,7 +75,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         },
     },
     LinuxAArch64(for_jdk_build):: self.Linux + self.AArch64 {
-        packages : if for_jdk_build then {
+        packages+: if for_jdk_build then {
             # devkit_platform_revisions in make/conf/jib-profiles.js
             "devkit:gcc10.3.0-OL7.6+1" : "==0"
         } else {
@@ -278,7 +281,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         ]
     },
 
-    CompilerTests(conf):: conf + clone_graal + requireLabsJDK(conf) + {
+    CompilerTests(conf):: mx + conf + clone_graal + requireLabsJDK(conf) + {
         name: "test-compiler" + conf.name,
         timelimit: "1:00:00",
         logs: ["*.log"],
@@ -289,7 +292,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     },
 
     # Build and test JavaScript on GraalVM
-    JavaScriptTests(conf):: conf + clone_graal + requireLabsJDK(conf) + {
+    JavaScriptTests(conf):: mx + conf + clone_graal + requireLabsJDK(conf) + {
         local jsvm = ["mx", "-p", "graal/vm",
             "--dynamicimports", "/graal-js,/substratevm",
             "--components=Graal.js,Native Image",
@@ -312,10 +315,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     },
 
     # Build LibGraal
-    BuildLibGraal(conf):: conf + clone_graal + requireLabsJDK(conf) + {
-        packages+: {
-            "mx": "==5.310.0",
-        },
+    BuildLibGraal(conf):: mx + conf + clone_graal + requireLabsJDK(conf) + {
         name: "build-libgraal" + conf.name,
         timelimit: "1:00:00",
         logs: ["*.log"],
@@ -355,10 +355,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     },
 
     # Test LibGraal
-    TestLibGraal(conf):: conf + clone_graal + requireLabsJDK(conf) + requireLibGraal(conf) {
-        packages+: {
-            "mx": "==5.310.0"
-        },
+    TestLibGraal(conf):: mx + conf + clone_graal + requireLabsJDK(conf) + requireLibGraal(conf) {
         name: "test-libgraal" + conf.name,
         timelimit: "1:00:00",
         logs: ["*.log"],
