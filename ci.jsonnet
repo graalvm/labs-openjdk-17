@@ -86,9 +86,14 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         },
         os:: "darwin",
         name+: "-darwin",
+    },
+    DarwinAMD64:: self.Darwin + self.AMD64 + {
         # JDK 17 switched to Xcode 12.4 which requires 10.15.4
         # at a minimum (GR-32439)
-        capabilities+: ["darwin_catalina_7"]
+        capabilities+: ["darwin_catalina_7"],
+    },
+    DarwinAArch64:: self.Darwin + self.AArch64 + {
+        capabilities+: ["darwin"],
     },
 
     AMD64:: {
@@ -375,14 +380,16 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     local build_confs = [
         self.LinuxAMD64(true),
         self.LinuxAArch64(true),
-        self.Darwin + self.AMD64,
+        self.DarwinAMD64,
+        self.DarwinAArch64,
         self.Windows + self.AMD64
     ],
 
     local graal_confs = [
         self.LinuxAMD64(false),
         self.LinuxAArch64(false),
-        self.Darwin + self.AMD64,
+        self.DarwinAMD64,
+        self.DarwinAArch64,
     ],
 
     local amd64_musl_confs = [
