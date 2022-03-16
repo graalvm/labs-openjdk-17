@@ -94,12 +94,12 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     },
     DarwinAArch64:: self.Darwin + self.AArch64 + {
         capabilities+: ["darwin"],
-	packages+: {
-	   "python3": "==3.9.9",
-           '00:pip:logilab-common': '==1.8.3',
-           '01:pip:astroid': '==2.11.0',
-           'pip:pylint': '==2.12.2',
-	},
+        packages+: {
+            "python3": "==3.9.9",
+            '00:pip:logilab-common': '==1.8.3',
+            '01:pip:astroid': '==2.11.0',
+            'pip:pylint': '==2.12.2',
+        },
     },
 
     AMD64:: {
