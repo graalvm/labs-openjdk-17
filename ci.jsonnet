@@ -321,11 +321,11 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
             # Build and test JavaScript on GraalVM
             jsvm + ["build"],
             ["set-export", "GRAALVM_HOME", jsvm + ["graalvm-home"]],
-            ["${GRAALVM_HOME}/bin/js", "test/nashorn/opt/add.js"],
+            ["${GRAALVM_HOME}/bin/js", "js/graal-js/test/smoketest/primes.js"],
         ] +
         if conf.os != "windows" then [
             # Native launchers do not yet support --jvm mode on Windows
-            ["${GRAALVM_HOME}/bin/js", "--jvm", "test/nashorn/opt/add.js"]
+            ["${GRAALVM_HOME}/bin/js", "--jvm", "js/graal-js/test/smoketest/primes.js"]
             ] else []
     },
 
