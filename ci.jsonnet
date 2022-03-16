@@ -149,13 +149,13 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         }
     },
 
-    # use amd64 (via Rosetta) until we have proper builds in place for darwin-aarch64
+    # GR-37479: use some aarch64 jdk until we have a proper oraclejdk build in place for darwin-aarch64
     DarwinAArch64BootJDK:: {
         downloads+: {
             BOOT_JDK: {
-                name : "oraclejdk-16+32-darwin-amd64",
-                version : "",
-                platformspecific: false
+                name : "jdk",
+                version : "17.0.24",
+                platformspecific: true
             }
         }
     },
