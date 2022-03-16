@@ -415,8 +415,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
     builds: [ self.Build(conf, is_musl_build=false) for conf in build_confs ] +
             [ self.CompilerTests(conf) for conf in graal_confs ] +
 
-            # GR-25354
-            #[ self.JavaScriptTests(conf) for conf in graal_confs ] +
+            [ self.JavaScriptTests(conf) for conf in graal_confs ] +
 
             [ self.BuildLibGraal(conf) for conf in graal_confs ] +
             [ self.TestLibGraal(conf) for conf in graal_confs ] +
