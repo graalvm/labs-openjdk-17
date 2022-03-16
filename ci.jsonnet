@@ -149,6 +149,17 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         }
     },
 
+    # use amd64 (via Rosetta) until we have proper builds in place for darwin-aarch64
+    DarwinAArch64BootJDK:: {
+        downloads+: {
+            BOOT_JDK: {
+                name : "oraclejdk-16+32-darwin-amd64",
+                version : "",
+                platformspecific: false
+            }
+        }
+    },
+
     MuslBootJDK:: {
         downloads+: {
             BOOT_JDK: {
@@ -185,7 +196,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         ],
     },
 
-    Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else self.BootJDK) + {
+    Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else (if std.endsWith(conf.name, 'darwin-aarch64') then self.DarwinAArch64BootJDK else self.BootJDK)) + {
         packages+: if !is_musl_build && !std.endsWith(conf.name, 'darwin-aarch64') then {
             # GR-19828
             "00:pip:logilab-common ": "==1.4.4",
