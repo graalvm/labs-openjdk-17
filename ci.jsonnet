@@ -230,7 +230,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
             # Run some basic mx based sanity checks. This is mostly to ensure
             # IDE support does not regress.
             ["set-export", "JAVA_HOME", "${BOOT_JDK}"],
-            ["mx", "-p", "${JDK_SUITE_DIR}", "checkstyle"],
+            (if std.endsWith(conf.name, 'darwin-aarch64') then ['echo', 'no checkstyle available on darwin-aarch64'] else ["mx", "-p", "${JDK_SUITE_DIR}", "checkstyle"]),
             ["mx", "-p", "${JDK_SUITE_DIR}", "eclipseinit"],
             ["mx", "-p", "${JDK_SUITE_DIR}", "canonicalizeprojects"],
         ] else []) + [
