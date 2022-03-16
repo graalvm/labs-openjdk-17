@@ -217,7 +217,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
                 "--jdk-debug-level=" + jdk_debug_level,
                 "--test=" + run_test_spec,
                 "--java-home-link-target=${%s}" % java_home_env_var,
-            ] + (if is_musl_build then ["--bundles=only-static-libs"] else [])
+            ] + (if is_musl_build then ["--bundles=static-libs"] else [])
             + ["${JDK_SRC_DIR}"],
             (if !is_musl_build then [conf.exe("${%s}/bin/java" % java_home_env_var), "-version"] else ["echo"])
         ],
