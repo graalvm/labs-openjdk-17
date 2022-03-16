@@ -186,7 +186,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     },
 
     Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else self.BootJDK) + {
-        packages+: if !is_musl_build then {
+        packages+: if !is_musl_build && !std.endsWith(conf.name, 'darwin-aarch64') then {
             # GR-19828
             "00:pip:logilab-common ": "==1.4.4",
             "01:pip:astroid" : "==1.1.0",
