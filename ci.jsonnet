@@ -3,7 +3,7 @@ local defs = import "defs.jsonnet";
 # https://github.com/graalvm/labs-openjdk-17/blob/master/doc/testing.md
 local run_test_spec = "test/hotspot/jtreg/compiler/jvmci";
 
-local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
+local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
 
 {
     overlay: "de70fec80b4947d9ef25c39e059b01ef38dfc387",
@@ -86,9 +86,20 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         },
         os:: "darwin",
         name+: "-darwin",
+    },
+    DarwinAMD64:: self.Darwin + self.AMD64 + {
         # JDK 17 switched to Xcode 12.4 which requires 10.15.4
         # at a minimum (GR-32439)
-        capabilities+: ["darwin_catalina_7"]
+        capabilities+: ["darwin_catalina_7"],
+    },
+    DarwinAArch64:: self.Darwin + self.AArch64 + {
+        capabilities+: ["darwin"],
+        packages+: {
+            "python3": "==3.9.9",
+            '00:pip:logilab-common': '==1.8.3',
+            '01:pip:astroid': '==2.11.0',
+            'pip:pylint': '==2.12.2',
+        },
     },
 
     AMD64:: {
@@ -138,6 +149,17 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         }
     },
 
+    # GR-37479: use some aarch64 jdk until we have a proper oraclejdk build in place for darwin-aarch64
+    DarwinAArch64BootJDK:: {
+        downloads+: {
+            BOOT_JDK: {
+                name : "jdk",
+                version : "17.0.24",
+                platformspecific: true
+            }
+        }
+    },
+
     MuslBootJDK:: {
         downloads+: {
             BOOT_JDK: {
@@ -174,8 +196,8 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
         ],
     },
 
-    Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else self.BootJDK) + {
-        packages+: if !is_musl_build then {
+    Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else (if std.endsWith(conf.name, 'darwin-aarch64') then self.DarwinAArch64BootJDK else self.BootJDK)) + {
+        packages+: if !is_musl_build && !std.endsWith(conf.name, 'darwin-aarch64') then {
             # GR-19828
             "00:pip:logilab-common ": "==1.4.4",
             "01:pip:astroid" : "==1.1.0",
@@ -192,12 +214,11 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
             ["python3", "-u", conf.path("${LABSJDK_BUILDER_DIR}/build_labsjdk.py"),
                 "--boot-jdk=${BOOT_JDK}",
                 "--clean-after-build",
-                "--bundles=" + (if is_musl_build then "only-static-libs" else "jdk"),
                 "--jdk-debug-level=" + jdk_debug_level,
                 "--test=" + run_test_spec,
                 "--java-home-link-target=${%s}" % java_home_env_var,
-                "${JDK_SRC_DIR}"
-            ],
+            ] + (if is_musl_build then ["--bundles=static-libs"] else [])
+            + ["${JDK_SRC_DIR}"],
             (if !is_musl_build then [conf.exe("${%s}/bin/java" % java_home_env_var), "-version"] else ["echo"])
         ],
 
@@ -208,7 +229,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
             # Run some basic mx based sanity checks. This is mostly to ensure
             # IDE support does not regress.
             ["set-export", "JAVA_HOME", "${BOOT_JDK}"],
-            ["mx", "-p", "${JDK_SUITE_DIR}", "checkstyle"],
+            (if std.endsWith(conf.name, 'darwin-aarch64') then ['echo', 'no checkstyle available on darwin-aarch64'] else ["mx", "-p", "${JDK_SUITE_DIR}", "checkstyle"]),
             ["mx", "-p", "${JDK_SUITE_DIR}", "eclipseinit"],
             ["mx", "-p", "${JDK_SUITE_DIR}", "canonicalizeprojects"],
         ] else []) + [
@@ -300,11 +321,11 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
             # Build and test JavaScript on GraalVM
             jsvm + ["build"],
             ["set-export", "GRAALVM_HOME", jsvm + ["graalvm-home"]],
-            ["${GRAALVM_HOME}/bin/js", "test/nashorn/opt/add.js"],
+            ["${GRAALVM_HOME}/bin/js", "js/graal-js/test/smoketest/primes.js"],
         ] +
         if conf.os != "windows" then [
             # Native launchers do not yet support --jvm mode on Windows
-            ["${GRAALVM_HOME}/bin/js", "--jvm", "test/nashorn/opt/add.js"]
+            ["${GRAALVM_HOME}/bin/js", "--jvm", "js/graal-js/test/smoketest/primes.js"]
             ] else []
     },
 
@@ -375,14 +396,16 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     local build_confs = [
         self.LinuxAMD64(true),
         self.LinuxAArch64(true),
-        self.Darwin + self.AMD64,
+        self.DarwinAMD64,
+        self.DarwinAArch64,
         self.Windows + self.AMD64
     ],
 
     local graal_confs = [
         self.LinuxAMD64(false),
         self.LinuxAArch64(false),
-        self.Darwin + self.AMD64,
+        self.DarwinAMD64,
+        self.DarwinAArch64,
     ],
 
     local amd64_musl_confs = [
@@ -392,8 +415,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
     builds: [ self.Build(conf, is_musl_build=false) for conf in build_confs ] +
             [ self.CompilerTests(conf) for conf in graal_confs ] +
 
-            # GR-25354
-            #[ self.JavaScriptTests(conf) for conf in graal_confs ] +
+            [ self.JavaScriptTests(conf) for conf in graal_confs ] +
 
             [ self.BuildLibGraal(conf) for conf in graal_confs ] +
             [ self.TestLibGraal(conf) for conf in graal_confs ] +
