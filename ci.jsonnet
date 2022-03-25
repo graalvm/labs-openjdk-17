@@ -143,18 +143,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         downloads+: {
             BOOT_JDK: {
                 name : "oraclejdk",
-                version : "16+32",
-                platformspecific: true
-            }
-        }
-    },
-
-    # GR-37479: use some aarch64 jdk until we have a proper oraclejdk build in place for darwin-aarch64
-    DarwinAArch64BootJDK:: {
-        downloads+: {
-            BOOT_JDK: {
-                name : "jdk",
-                version : "17.0.24",
+                version : "17.0.1+2",
                 platformspecific: true
             }
         }
@@ -196,7 +185,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         ],
     },
 
-    Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else (if std.endsWith(conf.name, 'darwin-aarch64') then self.DarwinAArch64BootJDK else self.BootJDK)) + {
+    Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else self.BootJDK) + {
         packages+: if !is_musl_build && !std.endsWith(conf.name, 'darwin-aarch64') then {
             # GR-19828
             "00:pip:logilab-common ": "==1.4.4",
