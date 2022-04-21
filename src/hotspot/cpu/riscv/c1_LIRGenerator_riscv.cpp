@@ -648,16 +648,14 @@ void LIRGenerator::do_MathIntrinsic(Intrinsic* x) {
       do_LibmIntrinsic(x);
       break;
     case vmIntrinsics::_dabs: // fall through
-    case vmIntrinsics::_dsqrt: // fall through
-    case vmIntrinsics::_dsqrt_strict: {
+    case vmIntrinsics::_dsqrt: { // fall through
       assert(x->number_of_arguments() == 1, "wrong type");
       LIRItem value(x->argument_at(0), this);
       value.load_item();
       LIR_Opr dst = rlock_result(x);
 
       switch (x->id()) {
-        case vmIntrinsics::_dsqrt: // fall through
-        case vmIntrinsics::_dsqrt_strict: {
+        case vmIntrinsics::_dsqrt: { // fall through
           __ sqrt(value.result(), dst, LIR_OprFact::illegalOpr);
           break;
         }
