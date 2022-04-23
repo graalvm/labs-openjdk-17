@@ -160,6 +160,7 @@ Mutex*   Bootclasspath_lock           = NULL;
 
 #if INCLUDE_JVMCI
 Monitor* JVMCI_lock                   = NULL;
+Monitor* JVMCIRuntime_lock            = NULL;
 #endif
 
 
@@ -350,7 +351,9 @@ void mutex_init() {
   def(Bootclasspath_lock           , PaddedMutex  , leaf,        false, _safepoint_check_never);
 
 #if INCLUDE_JVMCI
-  def(JVMCI_lock                   , PaddedMonitor, nonleaf+2,   true,  _safepoint_check_always);
+  // JVMCIRuntime_lock must be acquired before JVMCI_lock to avoid deadlock
+  def(JVMCI_lock                   , PaddedMonitor, nonleaf+1,   true,  _safepoint_check_always);
+  def(JVMCIRuntime_lock            , PaddedMonitor, nonleaf+2,   true,  _safepoint_check_always);
 #endif
 }
 
