@@ -19,6 +19,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
             JIB_PATH: "${PATH}",
             MAKE : "make",
             ZLIB_BUNDLING: "system",
+            MX_PYTHON: "python3"
         },
     },
 
@@ -266,10 +267,17 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
     local clone_graal = {
         run+: [
             ["git", "clone", ["mx", "urlrewrite", "https://github.com/graalvm/graal.git"]],
+            # This puts cygwin on the PATH so that `test` and `cat` are available
+            ["set-export", "OLD_PATH", "${PATH}"],
+            ["set-export", "PATH", "${JIB_PATH}"],
+
             # Use branch recorded by previous builder or record it now for subsequent builder(s)
             ["test", "-f", "graal.commit", "||", "echo", downstream_branch, ">graal.commit"],
             ["git", "-C", "graal", "checkout", ["cat", "graal.commit"], "||", "true"],
-            ["git", "-C", "graal", "rev-list", "-n", "1", "HEAD", ">graal.commit"],            
+            ["git", "-C", "graal", "rev-list", "-n", "1", "HEAD", ">graal.commit"],
+
+            # Restore PATH as cygwin must not be on the PATH when building Graal.
+            ["set-export", "PATH", "${OLD_PATH}"],
         ]
     },
 
@@ -285,7 +293,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         ]
     },
 
-    CompilerTests(conf):: conf + clone_graal + requireLabsJDK(conf) + {
+    CompilerTests(conf):: conf + requireLabsJDK(conf) + clone_graal + {
         name: "test-compiler" + conf.name,
         timelimit: "1:00:00",
         logs: ["*.log"],
@@ -296,7 +304,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
     },
 
     # Build and test JavaScript on GraalVM
-    JavaScriptTests(conf):: conf + clone_graal + requireLabsJDK(conf) + {
+    JavaScriptTests(conf):: conf + requireLabsJDK(conf) + clone_graal + {
         local jsvm = ["mx", "-p", "graal/vm",
             "--dynamicimports", "/graal-js,/substratevm",
             "--components=Graal.js,Native Image",
@@ -319,7 +327,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
     },
 
     # Build LibGraal
-    BuildLibGraal(conf):: conf + clone_graal + requireLabsJDK(conf) + {
+    BuildLibGraal(conf):: conf + requireLabsJDK(conf) + clone_graal + {
         name: "build-libgraal" + conf.name,
         timelimit: "1:00:00",
         logs: ["*.log"],
@@ -359,7 +367,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
     },
 
     # Test LibGraal
-    TestLibGraal(conf):: conf + clone_graal + requireLabsJDK(conf) + requireLibGraal(conf) {
+    TestLibGraal(conf):: conf + requireLabsJDK(conf) + clone_graal + requireLibGraal(conf) {
         name: "test-libgraal" + conf.name,
         timelimit: "1:00:00",
         logs: ["*.log"],
@@ -369,16 +377,6 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
             ["mx", "-p", "graal/vm",
                 "--env", "libgraal",
                 "gate", "--task", "LibGraal"],
-        ]
-    },
-
-    # Run LabsJDK
-    RunJDK(conf):: conf + requireLabsJDK(conf) {
-        name: "run-jdk" + conf.name,
-        logs: ["*.log"],
-        targets: ["gate"],
-        run+: [
-            [conf.exe("${JAVA_HOME}/bin/java"), "-version"],
         ]
     },
 
@@ -395,6 +393,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         self.LinuxAArch64(false),
         self.DarwinAMD64,
         self.DarwinAArch64,
+        self.Windows + self.AMD64
     ],
 
     local amd64_musl_confs = [
@@ -409,10 +408,5 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
             [ self.BuildLibGraal(conf) for conf in graal_confs ] +
             [ self.TestLibGraal(conf) for conf in graal_confs ] +
 
-            [ self.Build(conf, is_musl_build=true) for conf in amd64_musl_confs ] +
-
-            # GR-20001 prevents reliable Graal testing on Windows
-            # but we want to "require" the JDK artifact so that it
-            # is uploaded.
-            [ self.RunJDK(self.Windows + self.AMD64) ]
+            [ self.Build(conf, is_musl_build=true) for conf in amd64_musl_confs ]
 }
