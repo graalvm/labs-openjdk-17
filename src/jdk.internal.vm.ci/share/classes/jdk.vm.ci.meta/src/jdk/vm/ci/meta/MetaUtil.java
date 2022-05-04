@@ -264,9 +264,7 @@ public class MetaUtil {
                 result.append("V");
                 break;
             default:
-                result.append("L")
-                        .append(replacePackageAndHiddenSeparators(base, PACKAGE_SEPARATOR_JAVA, HIDDEN_SEPARATOR_JAVA))
-                        .append(";");
+                result.append("L").append(replacePackageAndHiddenSeparators(base, PACKAGE_SEPARATOR_JAVA, HIDDEN_SEPARATOR_JAVA)).append(";");
                 break;
         }
         return result.toString();
