@@ -7,9 +7,18 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
 
 {
     overlay: "de70fec80b4947d9ef25c39e059b01ef38dfc387",
-    specVersion: "2",
+    specVersion: "3",
 
-    OSBase:: {
+    mxDependencies:: {
+        "python_version": "3",
+        packages+: {
+          "mx": "HEAD",
+          "python3": "==3.8.10",
+          'pip:pylint': '==2.4.4',
+      },
+    },
+
+    OSBase:: self.mxDependencies + {
         path(unixpath):: unixpath,
         exe(unixpath):: unixpath,
         jdk_home(java_home):: self.path(java_home),
@@ -19,7 +28,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
             JIB_PATH: "${PATH}",
             MAKE : "make",
             ZLIB_BUNDLING: "system",
-            MX_PYTHON: "python3"
+            MX_PYTHON: "python3.8"
         },
     },
 
@@ -32,7 +41,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         downloads+: {
             CYGWIN: {name: "cygwin", version: "3.0.7", platformspecific: true},
         },
-        packages : {
+        packages+: {
             # devkit_platform_revisions in make/conf/jib-profiles.js
             "devkit:VS2019-16.9.3+1" : "==0"
         },
@@ -53,14 +62,15 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         docker: {
             image: defs.linux_docker_image_amd64_musl
         },
+        packages: {},
     },
 
     LinuxAMD64(for_jdk_build):: self.Linux + self.AMD64 {
         docker: {
             image: defs.linux_docker_image_amd64,
-            mount_modules: !for_jdk_build # needed for installing the devtoolset package below
+            mount_modules: true # needed for installing the devtoolset package below
         },
-        packages : if for_jdk_build then {
+        packages+: if for_jdk_build then {
             # devkit_platform_revisions in make/conf/jib-profiles.js
             "devkit:gcc10.3.0-OL6.4+1" : "==0"
         } else {
@@ -70,7 +80,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         },
     },
     LinuxAArch64(for_jdk_build):: self.Linux + self.AArch64 {
-        packages : if for_jdk_build then {
+        packages+: if for_jdk_build then {
             # devkit_platform_revisions in make/conf/jib-profiles.js
             "devkit:gcc10.3.0-OL7.6+1" : "==0"
         } else {
@@ -96,10 +106,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
     DarwinAArch64:: self.Darwin + self.AArch64 + {
         capabilities+: ["darwin"],
         packages+: {
-            "python3": "==3.9.9",
-            '00:pip:logilab-common': '==1.8.3',
-            '01:pip:astroid': '==2.11.0',
-            'pip:pylint': '==2.12.2',
+
         },
     },
 
@@ -188,10 +195,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
 
     Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else self.BootJDK) + {
         packages+: if !is_musl_build && !std.endsWith(conf.name, 'darwin-aarch64') then {
-            # GR-19828
-            "00:pip:logilab-common ": "==1.4.4",
-            "01:pip:astroid" : "==1.1.0",
-            "pip:pylint" : "==1.1.0",
+            
         } else {},
         name: "build-jdk" + conf.name,
         timelimit: "1:50:00",
@@ -385,7 +389,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         self.LinuxAArch64(true),
         self.DarwinAMD64,
         self.DarwinAArch64,
-        self.Windows + self.AMD64
+        self.Windows + self.AMD64 
     ],
 
     local graal_confs = [
