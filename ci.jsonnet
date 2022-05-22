@@ -194,9 +194,6 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
     },
 
     Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else self.BootJDK) + {
-        packages+: if !is_musl_build && !std.endsWith(conf.name, 'darwin-aarch64') then {
-            
-        } else {},
         name: "build-jdk" + conf.name,
         timelimit: "1:50:00",
         diskspace_required: "10G",
