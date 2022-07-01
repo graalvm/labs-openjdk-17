@@ -1,12 +1,10 @@
-local defs = import "defs.jsonnet";
-
 # https://github.com/graalvm/labs-openjdk-17/blob/master/doc/testing.md
 local run_test_spec = "test/hotspot/jtreg/compiler/jvmci";
 
 local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
 
 {
-    overlay: "de70fec80b4947d9ef25c39e059b01ef38dfc387",
+    overlay: "59a8ce23e959dfb9d158db144ccb2d065e73f1e3",
     specVersion: "3",
 
     mxDependencies:: {
@@ -58,14 +56,14 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         name+: "-linux",
         os:: "linux",
     },
-    LinuxDockerAMD64Musl:: self.Linux {
+    LinuxDockerAMD64Musl(defs):: self.Linux {
         docker: {
             image: defs.linux_docker_image_amd64_musl
         },
         packages: {},
     },
 
-    LinuxAMD64(for_jdk_build):: self.Linux + self.AMD64 {
+    LinuxAMD64(defs, for_jdk_build):: self.Linux + self.AMD64 {
         docker: {
             image: defs.linux_docker_image_amd64,
             mount_modules: true # needed for installing the devtoolset package below
@@ -193,7 +191,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         ],
     },
 
-    Build(conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else self.BootJDK) + {
+    Build(defs, conf, is_musl_build):: conf + setupJDKSources(conf) + (if is_musl_build then self.MuslBootJDK else self.BootJDK) + {
         name: "build-jdk" + conf.name,
         timelimit: "1:50:00",
         diskspace_required: "10G",
@@ -381,33 +379,43 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         ]
     },
 
-    local build_confs = [
-        self.LinuxAMD64(true),
+    local build_confs(defs) = [
+        self.LinuxAMD64(defs, true),
         self.LinuxAArch64(true),
         self.DarwinAMD64,
         self.DarwinAArch64,
         self.Windows + self.AMD64 
     ],
 
-    local graal_confs = [
-        self.LinuxAMD64(false),
+    local graal_confs(defs) = [
+        self.LinuxAMD64(defs, false),
         self.LinuxAArch64(false),
         self.DarwinAMD64,
         self.DarwinAArch64,
         self.Windows + self.AMD64
     ],
 
-    local amd64_musl_confs = [
-        self.LinuxDockerAMD64Musl + self.AMD64Musl,
+    local amd64_musl_confs(defs) = [
+        self.LinuxDockerAMD64Musl(defs) + self.AMD64Musl,
     ],
 
-    builds: [ self.Build(conf, is_musl_build=false) for conf in build_confs ] +
-            [ self.CompilerTests(conf) for conf in graal_confs ] +
+    DefineBuilds(defs):: [ self.Build(defs, conf, is_musl_build=false) for conf in build_confs(defs) ] +
+            [ self.CompilerTests(conf) for conf in graal_confs(defs) ] +
 
-            [ self.JavaScriptTests(conf) for conf in graal_confs ] +
+            [ self.JavaScriptTests(conf) for conf in graal_confs(defs) ] +
 
-            [ self.BuildLibGraal(conf) for conf in graal_confs ] +
-            [ self.TestLibGraal(conf) for conf in graal_confs ] +
+            [ self.BuildLibGraal(conf) for conf in graal_confs(defs) ] +
+            [ self.TestLibGraal(conf) for conf in graal_confs(defs) ] +
 
-            [ self.Build(conf, is_musl_build=true) for conf in amd64_musl_confs ]
+            [ self.Build(defs, conf, is_musl_build=true) for conf in amd64_musl_confs(defs) ],
+
+    local defs = {
+      labsjdk_builder_url: "<placeholder",
+      linux_docker_image_amd64_musl: "<placeholder",
+      linux_docker_image_amd64: "<placeholder",
+      jib_server: "<placeholder",
+      jib_server_mirrors: "<placeholder"
+    },
+
+    builds: self.DefineBuilds(defs)
 }
