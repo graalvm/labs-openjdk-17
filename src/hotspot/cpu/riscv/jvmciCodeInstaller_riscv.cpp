@@ -31,16 +31,16 @@
 #include "runtime/sharedRuntime.hpp"
 #include "vmreg_riscv.inline.hpp"
 
-jint CodeInstaller::pd_next_offset(NativeInstruction* inst, jint pc_offset, JVMCIObject method, JVMCI_TRAPS) {
+jint CodeInstaller::pd_next_offset(NativeInstruction* inst, jint pc_offset, JVMCI_TRAPS) {
   Unimplemented();
   return 0;
 }
 
-void CodeInstaller::pd_patch_OopConstant(int pc_offset, JVMCIObject constant, JVMCI_TRAPS) {
+void CodeInstaller::pd_patch_OopConstant(int pc_offset, Handle& obj, bool compressed, JVMCI_TRAPS) {
   Unimplemented();
 }
 
-void CodeInstaller::pd_patch_MetaspaceConstant(int pc_offset, JVMCIObject constant, JVMCI_TRAPS) {
+void CodeInstaller::pd_patch_MetaspaceConstant(int pc_offset, HotSpotCompiledCodeStream* stream, u1 tag, JVMCI_TRAPS) {
   Unimplemented();
 }
 
@@ -52,7 +52,7 @@ void CodeInstaller::pd_relocate_ForeignCall(NativeInstruction* inst, jlong forei
   Unimplemented();
 }
 
-void CodeInstaller::pd_relocate_JavaMethod(CodeBuffer &cbuf, JVMCIObject hotspot_method, jint pc_offset, JVMCI_TRAPS) {
+void CodeInstaller::pd_relocate_JavaMethod(CodeBuffer &cbuf, methodHandle& method, jint pc_offset, JVMCI_TRAPS) {
   Unimplemented();
 }
 
