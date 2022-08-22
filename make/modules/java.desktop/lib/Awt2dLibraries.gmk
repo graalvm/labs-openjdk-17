@@ -750,11 +750,7 @@ ifeq ($(ENABLE_HEADLESS_ONLY), false)
           maybe-uninitialized shift-negative-value implicit-fallthrough \
           unused-function, \
       DISABLED_WARNINGS_clang := incompatible-pointer-types sign-compare \
-<<<<<<< HEAD
-          deprecated-declarations null-pointer-subtraction, \
-=======
           deprecated-declarations null-pointer-subtraction $(LIBZ_DISABLED_WARNINGS_CLANG), \
->>>>>>> jdk-17.0.5+3
       DISABLED_WARNINGS_microsoft := 4018 4244 4267, \
       LDFLAGS := $(LDFLAGS_JDKLIB) \
           $(call SET_SHARED_LIBRARY_ORIGIN), \
