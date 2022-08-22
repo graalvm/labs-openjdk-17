@@ -41,7 +41,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         },
         packages+: {
             # devkit_platform_revisions in make/conf/jib-profiles.js
-            "devkit:VS2019-16.9.3+1" : "==0"
+            "devkit:VS2022-17.1.0+1" : "==0"
         },
         capabilities+: ["windows"],
         name+: "-windows-cygwin",
