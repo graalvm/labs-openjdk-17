@@ -2772,6 +2772,7 @@ C2V_VMENTRY(void, notifyCompilerInliningEvent, (JNIEnv* env, jobject, jint compi
   }
 }
 
+
 C2V_VMENTRY(void, setThreadLocalObject, (JNIEnv* env, jobject, jint id, jobject value))
   requireInHotSpot("setThreadLocalObject", JVMCI_CHECK);
   if (id == 0) {
