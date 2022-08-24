@@ -78,7 +78,8 @@ def load_ci_devkits():
     with open(ci_jsonnet_path) as fp:
         ci_jsonnet = fp.read()
     for match in devkit_re.finditer(ci_jsonnet):
-        devkits.add('.'.join(match.group(1, 2)))
+        if not match.group(1).endswith(':musl'):
+            devkits.add('.'.join(match.group(1, 2)))
     return devkits
 
 jib_devkits = load_jib_devkits()
