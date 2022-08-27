@@ -1513,7 +1513,7 @@ void JVMCIEnv::initialize_installed_code(JVMCIObject installed_code, CodeBlob* c
 }
 
 
-void JVMCIEnv::invalidate_nmethod_mirror(JVMCIObject mirror, JVMCI_TRAPS) {
+void JVMCIEnv::invalidate_nmethod_mirror(JVMCIObject mirror, bool deoptimize, JVMCI_TRAPS) {
   if (mirror.is_null()) {
     JVMCI_THROW(NullPointerException);
   }
@@ -1533,9 +1533,11 @@ void JVMCIEnv::invalidate_nmethod_mirror(JVMCIObject mirror, JVMCI_TRAPS) {
                     "Cannot invalidate HotSpotNmethod object in shared library VM heap from non-JavaThread");
   }
 
-  nmethodLocker nml(nm);
-  if (nm->is_alive()) {
-    // Invalidating the HotSpotNmethod means we want the nmethod to be deoptimized.
+  if (!deoptimize) {
+     // Prevent future executions of the nmethod but let current executions complete.
+     nm->make_not_entrant();
+   } else if (nm->is_alive()) {
+     // We want the nmethod to be deoptimized immediately.
     Deoptimization::deoptimize_all_marked(nm);
   }
 
