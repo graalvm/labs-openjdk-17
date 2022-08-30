@@ -6,7 +6,7 @@ local run_test_spec = "test/hotspot/jtreg/compiler/jvmci";
 local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
 
 {
-    overlay: "de70fec80b4947d9ef25c39e059b01ef38dfc387",
+    overlay: "0484a4b9195329203eec7e7b53f15f58275b4955",
     specVersion: "2",
 
     local mx = {
@@ -104,9 +104,6 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
 
     AMD64Musl:: self.AMD64 + {
         name+: "-musl",
-        packages+: {
-            "devkit:gcc7.3.0-Alpine3.8+0:musl": "==1"
-        }
     },
 
     AArch64:: {
@@ -268,7 +265,7 @@ local labsjdk_builder_version = "0ae6a84d4d7c9a103f696bffbb2ac807575ab28c";
             # Use branch recorded by previous builder or record it now for subsequent builder(s)
             ["test", "-f", "graal.commit", "||", "echo", downstream_branch, ">graal.commit"],
             ["git", "-C", "graal", "checkout", ["cat", "graal.commit"], "||", "true"],
-            ["git", "-C", "graal", "rev-list", "-n", "1", "HEAD", ">graal.commit"],            
+            ["git", "-C", "graal", "rev-list", "-n", "1", "HEAD", ">graal.commit"],
         ]
     },
 
