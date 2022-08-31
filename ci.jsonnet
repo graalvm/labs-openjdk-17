@@ -4,7 +4,7 @@ local run_test_spec = "test/hotspot/jtreg/compiler/jvmci";
 local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
 
 {
-    overlay: "59a8ce23e959dfb9d158db144ccb2d065e73f1e3",
+    overlay: "adc52f479f9d2b1f55985066bf95d454702c7a89",
     specVersion: "3",
 
     mxDependencies:: {
@@ -115,9 +115,6 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
 
     AMD64Musl:: self.AMD64 + {
         name+: "-musl",
-        packages+: {
-            "devkit:gcc7.3.0-Alpine3.8+0:musl": "==1"
-        }
     },
 
     AArch64:: {
@@ -387,7 +384,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         self.LinuxAArch64(true),
         self.DarwinAMD64,
         self.DarwinAArch64,
-        self.Windows + self.AMD64 
+        self.Windows + self.AMD64
     ],
 
     local graal_confs(defs) = [
