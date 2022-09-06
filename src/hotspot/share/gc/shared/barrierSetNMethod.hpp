@@ -28,6 +28,9 @@
 #include "memory/allocation.hpp"
 #include "utilities/globalDefinitions.hpp"
 #include "utilities/sizes.hpp"
+#if INCLUDE_JVMCI
+#include "utilities/formatBuffer.hpp"
+#endif
 
 class nmethod;
 
@@ -46,6 +49,10 @@ public:
   bool nmethod_osr_entry_barrier(nmethod* nm);
   bool is_armed(nmethod* nm);
   void disarm(nmethod* nm);
+
+#if INCLUDE_JVMCI
+  bool verify_barrier(nmethod* nm, FormatBuffer<>& msg);
+#endif
 };
 
 
