@@ -33,6 +33,8 @@
 
 package compiler.inlining;
 
+import java.util.regex.Pattern;
+
 import jdk.test.lib.process.OutputAnalyzer;
 import jdk.test.lib.process.ProcessTools;
 
@@ -41,6 +43,7 @@ public class InlineAccessors {
         ProcessBuilder pb = ProcessTools.createJavaProcessBuilder(
                 "-XX:+IgnoreUnrecognizedVMOptions", "-showversion",
                 "-server", "-XX:-TieredCompilation", "-Xbatch",
+                "-XX:+PrintFlagsFinal",
                 "-XX:+PrintCompilation", "-XX:+UnlockDiagnosticVMOptions", "-XX:+PrintInlining",
                  Launcher.class.getName());
 
@@ -48,8 +51,10 @@ public class InlineAccessors {
 
         analyzer.shouldHaveExitValue(0);
 
+        boolean usesJVMCICompiler = Pattern.compile("bool +UseJVMCICompiler += true", Pattern.MULTILINE).matcher(analyzer.getStdout()).find();
+
         // The test is applicable only to C2 (present in Server VM).
-        if (analyzer.getStderr().contains("Server VM")) {
+        if (analyzer.getStderr().contains("Server VM") && !usesJVMCICompiler) {
             analyzer.shouldContain("InlineAccessors::setBool (6 bytes)   accessor");
             analyzer.shouldContain("InlineAccessors::setByte (6 bytes)   accessor");
             analyzer.shouldContain("InlineAccessors::setChar (6 bytes)   accessor");
