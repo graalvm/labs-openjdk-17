@@ -34,6 +34,8 @@
 
 package compiler.inlining;
 
+import java.util.regex.Pattern;
+
 import jdk.test.lib.process.OutputAnalyzer;
 import jdk.test.lib.process.ProcessTools;
 
@@ -45,6 +47,7 @@ public class PrintInlining {
                 "-server", "-XX:-TieredCompilation", "-Xbatch", "-XX:-UseOnStackReplacement",
                 "-XX:CompileCommand=dontinline,*::bar",
                 "-XX:CompileCommand=compileonly,*::foo",
+                "-XX:+PrintFlagsFinal",
                 "-XX:+PrintCompilation", "-XX:+UnlockDiagnosticVMOptions", option,
                 Launcher.class.getName());
 
@@ -52,8 +55,10 @@ public class PrintInlining {
 
         analyzer.shouldHaveExitValue(0);
 
+        boolean usesJVMCICompiler = Pattern.compile("bool +UseJVMCICompiler += true", Pattern.MULTILINE).matcher(analyzer.getStdout()).find();
+
         // The test is applicable only to C2 (present in Server VM).
-        if (analyzer.getStderr().contains("Server VM")) {
+        if (analyzer.getStderr().contains("Server VM") && !usesJVMCICompiler) {
             analyzer.outputTo(System.out);
             if (analyzer.asLines().stream()
                 .filter(s -> s.matches(".*A::bar.+virtual call.*"))
