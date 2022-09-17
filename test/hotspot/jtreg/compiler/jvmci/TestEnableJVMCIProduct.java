@@ -67,7 +67,7 @@ public class TestEnableJVMCIProduct {
             new Expectation("EnableJVMCI", "false", "command line"),
             new Expectation("UseJVMCICompiler", "false", "default"));
         test("-XX:+EnableJVMCIProduct",
-            new Expectation("EnableJVMCIProduct", "true", "command line"),
+            new Expectation("EnableJVMCIProduct", "true", "(command line|jimage)"),
             new Expectation("EnableJVMCI", "true", "default"),
             new Expectation("UseJVMCICompiler", "true", "default"));
     }
