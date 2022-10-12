@@ -287,21 +287,13 @@
   notproduct(bool, VerifyRegisterAllocator , false,                         \
           "Verify Register Allocator")                                      \
                                                                             \
-  NOT_RISCV(develop_pd(intx, FLOATPRESSURE,                                 \
+  develop_pd(intx, FLOATPRESSURE,                                           \
           "Number of float LRG's that constitute high register pressure")   \
-          range(0, max_jint))                                               \
+          range(0, max_jint)                                                \
                                                                             \
-  RISCV_ONLY(develop(intx, FLOATPRESSURE, -1,                               \
-          "Number of float LRG's that constitute high register pressure")   \
-          range(0, max_jint))                                               \
-                                                                            \
-  NOT_RISCV(develop_pd(intx, INTPRESSURE,                                   \
+  develop_pd(intx, INTPRESSURE,                                             \
           "Number of integer LRG's that constitute high register pressure") \
-          range(0, max_jint))                                               \
-                                                                            \
-  RISCV_ONLY(develop(intx, INTPRESSURE, -1,                                 \
-          "Number of integer LRG's that constitute high register pressure") \
-          range(0, max_jint))                                               \
+          range(0, max_jint)                                                \
                                                                             \
   notproduct(bool, TraceOptoPipelining, false,                              \
           "Trace pipelining information")                                   \
