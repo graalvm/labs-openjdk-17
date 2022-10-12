@@ -1320,6 +1320,7 @@ bool os::is_first_C_frame(frame* fr) {
   return false;
 }
 
+
 // Set up the boot classpath.
 
 char* os::format_boot_path(const char* format_string,
