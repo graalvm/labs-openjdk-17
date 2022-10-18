@@ -23,7 +23,7 @@
 
 /**
  * @test
- * @summary Test if the names of the lambda classes are stable when {@code -Djdk.internal.lambda.stableLambdaNames}
+ * @summary Test if the names of the lambda classes are stable when {@code -Djdk.internal.lambda.generateStableLambdaNames}
  *          flag is set to true. This test directly calls java.lang.invoke.LambdaMetafactory#altMetafactory
  *          method to create multilple lambda instances and then checks their names stability. We created a
  *          multidimensional space of possible values for each parameter that
@@ -282,6 +282,7 @@ public class TestStableLambdaNames {
         Set<String> lambdaClassStableNames = new HashSet<>();
         createLambdasWithDifferentParameters(lambdaClassStableNames, methodHandles);
         System.err.println(lambdaClassStableNames.size());
+
 
         Set<String> lambdaClassStableNamesTest = new HashSet<>();
         createLambdasWithDifferentParameters(lambdaClassStableNamesTest, methodHandles);

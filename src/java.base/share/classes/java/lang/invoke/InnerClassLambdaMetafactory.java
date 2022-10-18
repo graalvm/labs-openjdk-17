@@ -95,10 +95,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
     private static final boolean disableEagerInitialization;
 
     private static final boolean generateStableLambdaNames;
-    private static final char paddingCharacter = '#';
-
-    // Length of a stable hash in the stable lambda name
-    private static final int stableLambdaNameHashLength;
 
     // condy to load implMethod from class data
     private static final ConstantDynamic implMethodCondy;
@@ -113,8 +109,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
 
         final String generateStableLambdaNamesKey = "jdk.internal.lambda.generateStableLambdaNames";
         generateStableLambdaNames = GetBooleanAction.privilegedGetProperty(generateStableLambdaNamesKey);
-
-        stableLambdaNameHashLength = hashValueString(Long.MAX_VALUE).length();
 
         // condy to load implMethod from class data
         MethodType classDataMType = MethodType.methodType(Object.class, MethodHandles.Lookup.class, String.class, Class.class);
@@ -229,7 +223,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
     }
 
     private static String hashValueString(long hashValue) {
-        return Long.toString(hashValue, Character.MAX_RADIX);
+        return Long.toString(hashValue, 16);
     }
     /**
      * Calculate hash value of the given String in the same manner as the
@@ -248,16 +242,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         }
 
         StringBuilder hash = new StringBuilder(hashValueString(Math.abs(h)));
-        int hashLength = hash.length();
-
-        // As all the hashes contained in the stable lambda names should
-        // be of the same length, we pad some of them with the special
-        // character '#' which is never part of the hash value.
-        while (hashLength != stableLambdaNameHashLength) {
-            hash.append(paddingCharacter);
-            hashLength++;
-        }
-
         return hash.toString();
     }
 
