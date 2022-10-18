@@ -23,7 +23,7 @@
 
 /**
  * @test
- * @summary Test if the names of the lambda classes are stable when {@code -Djdk.internal.lambda.stableLambdaName}
+ * @summary Test if the names of the lambda classes are stable when {@code -Djdk.internal.lambda.stableLambdaNames}
  *          flag is set to true. This test directly calls java.lang.invoke.LambdaMetafactory#altMetafactory
  *          method to create multilple lambda instances and then checks their names stability. We created a
  *          multidimensional space of possible values for each parameter that
@@ -48,12 +48,13 @@ import java.util.function.Predicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public class TestStableLambdaName {
+public class TestStableLambdaNames {
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-    /* Different types of lambda classes based on value of flags parameter in the
-     * java.lang.invoke.LambdaMetafactory#altMetafactory.
-     * java.lang.invoke.LambdaMetafactory#altMetafactory uses bitwise and with this
+    /**
+     * Different types of lambda classes based on value of flags parameter in the
+     * {@link java.lang.invoke.LambdaMetafactory#altMetafactory}.
+     * {@link java.lang.invoke.LambdaMetafactory#altMetafactory} uses bitwise and with this
      * parameter and predefined values to determine if lambda is serializable, has
      * altMethods and altInterfaces etc.
      */
@@ -73,15 +74,15 @@ public class TestStableLambdaName {
         }
     }
 
-    private static final String[] interfaceMethods = new String[]{"accept", "consume", "apply", "supply", "get", "test", "getAsBoolean"};
-    private static final Class<?>[] interfaces = new Class<?>[]{Consumer.class, Function.class, Predicate.class, Supplier.class, BooleanSupplier.class};
-    // List of method types for defined methods
-    private static final MethodType[] methodTypes = new MethodType[]{MethodType.methodType(String.class, Integer.class), MethodType.methodType(Throwable.class, AssertionError.class)};
-    private static final Class<?>[] altInterfaces = new Class<?>[]{Cloneable.class, Remote.class};
-    // Alternative methods that corresponds to method1
-    private static final MethodType[] altMethodsMethod1 = new MethodType[]{MethodType.methodType(String.class, Number.class)};
-    // Alternative methods that corresponds to method2
-    private static final MethodType[] altMethodsMethod2 = new MethodType[]{MethodType.methodType(Throwable.class, Error.class), MethodType.methodType(Throwable.class, Throwable.class)};
+    private static final String[] interfaceMethods = {"accept", "consume", "apply", "supply", "get", "test", "getAsBoolean"};
+    private static final Class<?>[] interfaces = {Consumer.class, Function.class, Predicate.class, Supplier.class, BooleanSupplier.class};
+    /** List of method types for defined methods */
+    private static final MethodType[] methodTypes = {MethodType.methodType(String.class, Integer.class), MethodType.methodType(Throwable.class, AssertionError.class)};
+    private static final Class<?>[] altInterfaces = {Cloneable.class, Remote.class};
+    /** Alternative methods that corresponds to method1 */
+    private static final MethodType[] altMethodsMethod1 = {MethodType.methodType(String.class, Number.class)};
+    /** Alternative methods that corresponds to method2 */
+    private static final MethodType[] altMethodsMethod2 = {MethodType.methodType(Throwable.class, Error.class), MethodType.methodType(Throwable.class, Throwable.class)};
 
     private static String method1(Number number) {
         return String.valueOf(number);
@@ -275,7 +276,7 @@ public class TestStableLambdaName {
     public static void main(String[] args) throws Throwable {
         MethodType methodTypeForMethod1 = methodTypes[0];
         MethodType methodTypeForMethod2 = methodTypes[1];
-        MethodHandle[] methodHandles = new MethodHandle[]{lookup.findStatic(TestStableLambdaName.class, "method1", methodTypeForMethod1),
+        MethodHandle[] methodHandles = {lookup.findStatic(TestStableLambdaName.class, "method1", methodTypeForMethod1),
                 lookup.findStatic(TestStableLambdaName.class, "method2", methodTypeForMethod2)};
 
         Set<String> lambdaClassStableNames = new HashSet<>();

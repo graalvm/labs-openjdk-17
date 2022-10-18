@@ -97,7 +97,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
     private static final boolean generateStableLambdaNames;
     private static final char paddingCharacter = '#';
 
-    // Length of a single hash contained in the stable lambda name
+    // Length of a stable hash in the stable lambda name
     private static final int stableLambdaNameHashLength;
 
     // condy to load implMethod from class data
@@ -111,8 +111,8 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         final String disableEagerInitializationKey = "jdk.internal.lambda.disableEagerInitialization";
         disableEagerInitialization = GetBooleanAction.privilegedGetProperty(disableEagerInitializationKey);
 
-        final String generateStableLambdaNameKey = "jdk.internal.lambda.generateStableLambdaNames";
-        generateStableLambdaNames = GetBooleanAction.privilegedGetProperty(generateStableLambdaNameKey);
+        final String generateStableLambdaNamesKey = "jdk.internal.lambda.generateStableLambdaNames";
+        generateStableLambdaNames = GetBooleanAction.privilegedGetProperty(generateStableLambdaNamesKey);
 
         stableLambdaNameHashLength = hashValueString(Long.MAX_VALUE).length();
 
