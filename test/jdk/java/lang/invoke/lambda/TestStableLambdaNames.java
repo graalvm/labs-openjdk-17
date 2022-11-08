@@ -32,7 +32,7 @@
  *          Alternative methods of the specific method must have the same signature with difference in parameter types
  *          as long as the parameter of the alternative method is the superclass type of the type of corresponding parameter in
  *          original method
- * @run main/othervm -Djdk.internal.lambda.generateStableLambdaNames=true TestStableLambdaName
+ * @run main/othervm -Djdk.internal.lambda.generateStableLambdaNames=true TestStableLambdaNames
  */
 
 import java.lang.invoke.LambdaMetafactory;
@@ -283,7 +283,6 @@ public class TestStableLambdaNames {
         createLambdasWithDifferentParameters(lambdaClassStableNames, methodHandles);
         System.err.println(lambdaClassStableNames.size());
 
-
         Set<String> lambdaClassStableNamesTest = new HashSet<>();
         createLambdasWithDifferentParameters(lambdaClassStableNamesTest, methodHandles);
 
@@ -297,3 +296,4 @@ public class TestStableLambdaNames {
         }
     }
 }
+

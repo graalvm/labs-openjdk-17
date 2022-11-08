@@ -50,6 +50,9 @@ import static java.lang.invoke.MethodHandles.Lookup.ClassOption.NESTMATE;
 import static java.lang.invoke.MethodHandles.Lookup.ClassOption.STRONG;
 import static jdk.internal.org.objectweb.asm.Opcodes.*;
 
+import java.nio.charset.StandardCharsets;
+import java.util.zip.CRC32;
+
 /**
  * Lambda metafactory implementation which dynamically creates an
  * inner-class-like class per lambda callsite.
@@ -95,6 +98,10 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
     private static final boolean disableEagerInitialization;
 
     private static final boolean generateStableLambdaNames;
+
+    private static final int mask1 = 0xAA; // 0000000010101010
+    private static final int mask2 = 0x55; // 0000000001010101
+
 
     // condy to load implMethod from class data
     private static final ConstantDynamic implMethodCondy;
@@ -222,63 +229,64 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         return name.replace('.', '/') + "$$Lambda$";
     }
 
-    private static String hashValueString(long hashValue) {
-        return Long.toString(hashValue, 16);
-    }
     /**
-     * Calculate hash value of the given String in the same manner as the
-     * java.lang.StringUTF16#hashCode does, except that hash value
-     * is long instead of int.
+     * Create a stable name for the lambda class.
+     * When the CDS archiving is enabled, lambda classes
+     * are stored in the archive using some parameters from
+     * the InnerClassLambdaMetafactory. To distinguish between
+     * two lambdas, even when CDS archiving is not enabled,
+     * use a superset of those parameters to create a stable name.
      *
-     * @param name String for which method calculates hash value for
-     *
-     * @return a hash value for the given String
-     * */
-    private String fixedSizeStringHash(String name) {
-        long h = 0;
-        int length = name.length();
-        for (int i = 0; i < length; i++) {
-            h = 31 * h + name.charAt(i);
-        }
-
-        StringBuilder hash = new StringBuilder(hashValueString(Math.abs(h)));
-        return hash.toString();
-    }
-
-    /**
-     * Creating stable name for lambda class.
-     * Parameters that are used to create stable name
-     * are a superset of the parameters that are used in
-     * {@link java.lang.invoke.LambdaProxyClassArchive#addToArchive}
-     * to store lambdas.
+     * Concatenate all the parameters chosen for the stable name,
+     * and hash them into 64-bit hash value.
+     * Any additional changes to this method will result in unstable
+     * hash values and unstable names. Thus, this implementation should
+     * not be changed.
      *
      * @return a stable name for the created lambda class.
      */
     private String stableLambdaClassName(Class<?> targetClass) {
         String name = createNameFromTargetClass(targetClass);
 
-        StringBuilder hashData = new StringBuilder().append(interfaceMethodName);
-        hashData.append(getQualifiedSignature(factoryType));
-        hashData.append(getQualifiedSignature(interfaceMethodType));
-        hashData.append(implementation.internalMemberName().toString());
-        hashData.append(getQualifiedSignature(dynamicMethodType));
+        StringBuilder hashData1 = new StringBuilder(), hashData2 = new StringBuilder();
+        appendData(hashData1, hashData2, interfaceMethodName);
+        appendData(hashData1, hashData2, getQualifiedSignature(factoryType));
+        appendData(hashData1, hashData2, getQualifiedSignature(interfaceMethodType));
+        appendData(hashData1, hashData2, implementation.internalMemberName().toString());
+        appendData(hashData1, hashData2, getQualifiedSignature(dynamicMethodType));
 
         for (Class<?> clazz : altInterfaces) {
-            hashData.append(clazz.getName());
+            appendData(hashData1, hashData2, clazz.getName());
         }
 
         for (MethodType method : altMethods) {
-            hashData.append(getQualifiedSignature(method));
+            appendData(hashData1, hashData2, getQualifiedSignature(method));
         }
 
-        name += fixedSizeStringHash(hashData.toString());
+        return name + hashToHexString(hashData1.toString(), hashData2.toString());
+    }
 
-        return name;
+    private void appendData(StringBuilder hashData1, StringBuilder hashData2, String data) {
+        for (int i = 0; i < data.length(); i++) {
+            hashData1.append((char)(data.charAt(i) & mask1));
+            hashData2.append((char)(data.charAt(i) & mask2));
+        }
+    }
+
+    private Long hashStringToLong(String hashData) {
+        CRC32 crc32 = new CRC32();
+        crc32.update(hashData.getBytes(StandardCharsets.UTF_16));
+        return crc32.getValue();
+    }
+
+    private String hashToHexString(String hashData1, String hashData2) {
+        long hashValueData1 = hashStringToLong(hashData1);
+        long hashValueData2 = hashStringToLong(hashData2);
+        return Long.toHexString(hashValueData1 + hashValueData2);
     }
 
     private String getQualifiedSignature(MethodType type) {
-        StringJoiner sj = new StringJoiner(",", "(",
-                ")" + type.returnType().getName());
+        StringJoiner sj = new StringJoiner(",", "(", ")" + type.returnType().getName());
         Class<?>[] ptypes = type.ptypes();
         for (int i = 0; i < ptypes.length; i++) {
             sj.add(ptypes[i].getName());
