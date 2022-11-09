@@ -234,7 +234,7 @@ import java.util.zip.CRC32;
      * When the CDS archiving is enabled, lambda classes
      * are stored in the archive using some parameters from
      * the InnerClassLambdaMetafactory. To distinguish between
-     * two lambdas, even when CDS archiving is not enabled,
+     * two lambdas, even when CDS archiving is disabled,
      * use a superset of those parameters to create a stable name.
      *
      * Concatenate all the parameters chosen for the stable name,
@@ -242,6 +242,12 @@ import java.util.zip.CRC32;
      * Any additional changes to this method will result in unstable
      * hash values and unstable names. Thus, this implementation should
      * not be changed.
+     *
+     * No matter what hash function we use, there is a possibility of
+     * collisions in names. The collision rate is very low for the
+     * CRC32 we used. Every tool that uses this feature should handle
+     * potential collisions on its own. There is no guarantee that names
+     * will be unique, only that they will be stable (identical in every run).
      *
      * @return a stable name for the created lambda class.
      */
@@ -273,7 +279,7 @@ import java.util.zip.CRC32;
         }
     }
 
-    private Long hashStringToLong(String hashData) {
+    private long hashStringToLong(String hashData) {
         CRC32 crc32 = new CRC32();
         crc32.update(hashData.getBytes(StandardCharsets.UTF_16));
         return crc32.getValue();
@@ -282,7 +288,7 @@ import java.util.zip.CRC32;
     private String hashToHexString(String hashData1, String hashData2) {
         long hashValueData1 = hashStringToLong(hashData1);
         long hashValueData2 = hashStringToLong(hashData2);
-        return Long.toHexString(hashValueData1 + hashValueData2);
+        return Long.toHexString(hashValueData1 | (hashValueData2 << 32));
     }
 
     private String getQualifiedSignature(MethodType type) {
