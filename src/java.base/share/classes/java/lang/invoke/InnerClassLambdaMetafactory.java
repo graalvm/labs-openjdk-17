@@ -99,8 +99,8 @@ import java.util.zip.CRC32;
 
     private static final boolean generateStableLambdaNames;
 
-    private static final int mask1 = 0xAA; // 0000000010101010
-    private static final int mask2 = 0x55; // 0000000001010101
+    private static final int mask1 = 0b10101010;
+    private static final int mask2 = 0b01010101;
 
 
     // condy to load implMethod from class data
