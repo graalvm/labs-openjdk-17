@@ -513,8 +513,6 @@ void os::initialize_jdk_signal_support(TRAPS) {
       Threads::add(signal_thread);
       Thread::start(signal_thread);
     }
-    // Handle ^BREAK
-    os::signal(SIGBREAK, os::user_handler());
   }
 }
 
@@ -705,6 +703,11 @@ void* os::malloc(size_t size, MEMFLAGS memflags, const NativeCallStack& stack) {
   // NMT support
   NMT_TrackingLevel level = MemTracker::tracking_level();
   size_t            nmt_header_size = MemTracker::malloc_header_size(level);
+
+  // Check for overflow.
+  if (size + nmt_header_size < size) {
+    return NULL;
+  }
 
 #ifndef ASSERT
   const size_t alloc_size = size + nmt_header_size;
