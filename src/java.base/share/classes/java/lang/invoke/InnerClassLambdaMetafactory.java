@@ -281,7 +281,7 @@ import java.util.zip.CRC32;
 
     private long hashStringToLong(String hashData) {
         CRC32 crc32 = new CRC32();
-        crc32.update(hashData.getBytes(StandardCharsets.UTF_16));
+        crc32.update(hashData.getBytes(StandardCharsets.UTF_8));
         return crc32.getValue();
     }
 
