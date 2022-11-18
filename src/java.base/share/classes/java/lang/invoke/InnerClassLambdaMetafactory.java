@@ -240,14 +240,15 @@ import java.util.zip.CRC32;
      * Concatenate all the parameters chosen for the stable name,
      * and hash them into 64-bit hash value.
      * Any additional changes to this method will result in unstable
-     * hash values and unstable names. Thus, this implementation should
-     * not be changed.
+     * hash values across different versions. Thus, every change
+     * to this method should be regarded as a backward incompatible change.
      *
      * No matter what hash function we use, there is a possibility of
-     * collisions in names. The collision rate is very low for the
-     * CRC32 we used. Every tool that uses this feature should handle
-     * potential collisions on its own. There is no guarantee that names
-     * will be unique, only that they will be stable (identical in every run).
+     * collisions in names. We expect a relatively low number of lambdas
+     * per class. Thus, we don't expect to have collisions using the described
+     * hash function. Every tool that uses this feature should handle potential
+     * collisions on its own. There is no guarantee that names will be unique,
+     * only that they will be stable (identical in every run).
      *
      * @return a stable name for the created lambda class.
      */
