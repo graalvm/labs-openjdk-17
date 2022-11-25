@@ -30,6 +30,9 @@
 #include "gc/shared/collectedHeap.hpp"
 #include "gc/shared/gc_globals.hpp"
 #include "gc/shared/tlab_globals.hpp"
+#include "gc/shared/barrierSetNMethod.hpp"
+#include "gc/z/zThreadLocalData.hpp"
+#include "gc/z/zBarrierSetRuntime.hpp"
 #include "jvmci/jvmciEnv.hpp"
 #include "jvmci/jvmciCompilerToVM.hpp"
 #include "jvmci/vmStructs_jvmci.hpp"
@@ -52,6 +55,20 @@ address CompilerToVM::Data::SharedRuntime_handle_wrong_method_stub;
 address CompilerToVM::Data::SharedRuntime_deopt_blob_unpack;
 address CompilerToVM::Data::SharedRuntime_deopt_blob_unpack_with_exception_in_tls;
 address CompilerToVM::Data::SharedRuntime_deopt_blob_uncommon_trap;
+address CompilerToVM::Data::SharedRuntime_polling_page_return_handler;
+
+address CompilerToVM::Data::nmethod_entry_barrier;
+int CompilerToVM::Data::thread_disarmed_offset;
+int CompilerToVM::Data::thread_address_bad_mask_offset;
+
+address CompilerToVM::Data::ZBarrierSetRuntime_load_barrier_on_oop_field_preloaded;
+address CompilerToVM::Data::ZBarrierSetRuntime_load_barrier_on_weak_oop_field_preloaded;
+address CompilerToVM::Data::ZBarrierSetRuntime_load_barrier_on_phantom_oop_field_preloaded;
+address CompilerToVM::Data::ZBarrierSetRuntime_weak_load_barrier_on_oop_field_preloaded;
+address CompilerToVM::Data::ZBarrierSetRuntime_weak_load_barrier_on_weak_oop_field_preloaded;
+address CompilerToVM::Data::ZBarrierSetRuntime_weak_load_barrier_on_phantom_oop_field_preloaded;
+address CompilerToVM::Data::ZBarrierSetRuntime_load_barrier_on_oop_array;
+address CompilerToVM::Data::ZBarrierSetRuntime_clone;
 
 size_t CompilerToVM::Data::ThreadLocalAllocBuffer_alignment_reserve;
 
@@ -106,6 +123,26 @@ void CompilerToVM::Data::initialize(JVMCI_TRAPS) {
   SharedRuntime_deopt_blob_unpack = SharedRuntime::deopt_blob()->unpack();
   SharedRuntime_deopt_blob_unpack_with_exception_in_tls = SharedRuntime::deopt_blob()->unpack_with_exception_in_tls();
   SharedRuntime_deopt_blob_uncommon_trap = SharedRuntime::deopt_blob()->uncommon_trap();
+  SharedRuntime_polling_page_return_handler = SharedRuntime::polling_page_return_handler_blob()->entry_point();
+
+  BarrierSetNMethod* bs_nm = BarrierSet::barrier_set()->barrier_set_nmethod();
+  if (bs_nm != nullptr) {
+    thread_disarmed_offset = in_bytes(bs_nm->thread_disarmed_offset());
+    AMD64_ONLY(nmethod_entry_barrier = StubRoutines::x86::method_entry_barrier());
+    AARCH64_ONLY(nmethod_entry_barrier = StubRoutines::aarch64::method_entry_barrier());
+  }
+
+  if (UseZGC) {
+    thread_address_bad_mask_offset = in_bytes(ZThreadLocalData::address_bad_mask_offset());
+    ZBarrierSetRuntime_load_barrier_on_oop_field_preloaded =                     ZBarrierSetRuntime::load_barrier_on_oop_field_preloaded_addr();
+    ZBarrierSetRuntime_load_barrier_on_weak_oop_field_preloaded =                ZBarrierSetRuntime::load_barrier_on_weak_oop_field_preloaded_addr();
+    ZBarrierSetRuntime_load_barrier_on_phantom_oop_field_preloaded =             ZBarrierSetRuntime::load_barrier_on_phantom_oop_field_preloaded_addr();
+    ZBarrierSetRuntime_weak_load_barrier_on_oop_field_preloaded =                ZBarrierSetRuntime::weak_load_barrier_on_oop_field_preloaded_addr();
+    ZBarrierSetRuntime_weak_load_barrier_on_weak_oop_field_preloaded =           ZBarrierSetRuntime::weak_load_barrier_on_weak_oop_field_preloaded_addr();
+    ZBarrierSetRuntime_weak_load_barrier_on_phantom_oop_field_preloaded =        ZBarrierSetRuntime::weak_load_barrier_on_phantom_oop_field_preloaded_addr();
+    ZBarrierSetRuntime_load_barrier_on_oop_array =                               ZBarrierSetRuntime::load_barrier_on_oop_array_addr();
+    ZBarrierSetRuntime_clone =                                                   ZBarrierSetRuntime::clone_addr();
+  }
 
   ThreadLocalAllocBuffer_alignment_reserve = ThreadLocalAllocBuffer::alignment_reserve();
 

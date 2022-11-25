@@ -316,9 +316,9 @@ class nmethod : public CompiledMethod {
           int comp_level,
           const GrowableArrayView<RuntimeStub*>& native_invokers
 #if INCLUDE_JVMCI
-          , char* speculations,
-          int speculations_len,
-          int jvmci_data_size
+          , char* speculations = NULL,
+          int speculations_len = 0,
+          JVMCINMethodData* jvmci_data = NULL
 #endif
           );
 
@@ -367,9 +367,7 @@ class nmethod : public CompiledMethod {
 #if INCLUDE_JVMCI
                               , char* speculations = NULL,
                               int speculations_len = 0,
-                              int nmethod_mirror_index = -1,
-                              const char* nmethod_mirror_name = NULL,
-                              FailedSpeculation** failed_speculations = NULL
+                              JVMCINMethodData* jvmci_data = NULL
 #endif
   );
 

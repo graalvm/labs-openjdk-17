@@ -317,7 +317,7 @@ public abstract class TestAssembler {
         byte[] finishedData = data.finish();
         DataPatch[] finishedDataPatches = dataPatches.toArray(new DataPatch[0]);
         return new HotSpotCompiledNmethod(method.getName(), finishedCode, finishedCode.length, finishedSites, new Assumption[0], new ResolvedJavaMethod[]{method}, new Comment[0], finishedData, 16,
-                        finishedDataPatches, false, frameSize, deoptRescue, method, 0, id, 0L, false);
+                        finishedDataPatches, false, frameSize, deoptRescue, method, -1, id, 0L, false);
     }
 
     protected static class Buffer {
