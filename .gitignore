@@ -16,6 +16,7 @@ NashornProfile.txt
 /src/utils/LogCompilation/target/
 **/JTreport/**
 **/JTwork/**
+<<<<<<< HEAD
 +/mxbuild/
 **/.checkstyle
 **/.classpath
@@ -27,3 +28,8 @@ NashornProfile.txt
 **/.pydevproject
 **/.settings/
 **/*.pyc
+=======
+/src/utils/LogCompilation/target/
+/.project/
+/.settings/
+>>>>>>> jdk-17.0.6+8
