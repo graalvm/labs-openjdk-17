@@ -706,6 +706,17 @@ C2V_VMENTRY_NULL(jobjectArray, resolveBootstrapMethod, (JNIEnv* env, jobject, AR
   return JVMCIENV->get_jobjectArray(bsmi);
 C2V_END
 
+C2V_VMENTRY_NULL(jobject, getUncachedStringInPool, (JNIEnv* env, jobject, jobject jvmci_constant_pool, jint index))
+  constantPoolHandle cp(THREAD, JVMCIENV->asConstantPool(jvmci_constant_pool));
+  constantTag tag = cp->tag_at(index);
+  if (!tag.is_string()) {
+    JVMCI_THROW_MSG_NULL(IllegalArgumentException, err_msg("Unexpected constant pool tag at index %d: %d", index, tag.value()));
+  }
+  oop obj = cp->uncached_string_at(index, CHECK_NULL);
+  return JVMCIENV->get_jobject(JVMCIENV->get_object_constant(obj));
+C2V_END
+
+
 C2V_VMENTRY_0(jint, lookupNameAndTypeRefIndexInPool, (JNIEnv* env, jobject, ARGUMENT_PAIR(cp), jint index))
   constantPoolHandle cp(THREAD, UNPACK_PAIR(ConstantPool, cp));
   return cp->name_and_type_ref_index_at(index);
@@ -1918,9 +1929,6 @@ C2V_VMENTRY_NULL(jobjectArray, getDeclaredConstructors, (JNIEnv* env, jobject, A
   }
 
   InstanceKlass* iklass = InstanceKlass::cast(klass);
-  // Ensure class is linked
-  iklass->link_class(CHECK_NULL);
-
   GrowableArray<Method*> constructors_array;
   for (int i = 0; i < iklass->methods()->length(); i++) {
     Method* m = iklass->methods()->at(i);
@@ -1948,9 +1956,6 @@ C2V_VMENTRY_NULL(jobjectArray, getDeclaredMethods, (JNIEnv* env, jobject, ARGUME
   }
 
   InstanceKlass* iklass = InstanceKlass::cast(klass);
-  // Ensure class is linked
-  iklass->link_class(CHECK_NULL);
-
   GrowableArray<Method*> methods_array;
   for (int i = 0; i < iklass->methods()->length(); i++) {
     Method* m = iklass->methods()->at(i);
@@ -2923,6 +2928,7 @@ JNINativeMethod CompilerToVM::methods[] = {
   {CC "unboxPrimitive",                               CC "(" OBJECTCONSTANT ")" OBJECT,                                                     FN_PTR(unboxPrimitive)},
   {CC "boxPrimitive",                                 CC "(" OBJECT ")" OBJECTCONSTANT,                                                     FN_PTR(boxPrimitive)},
   {CC "getDeclaredConstructors",                      CC "(" HS_KLASS2 ")[" RESOLVED_METHOD,                                                FN_PTR(getDeclaredConstructors)},
+  {CC "getUncachedStringInPool",                      CC "(" HS_CONSTANT_POOL "I)" JAVACONSTANT,                                            FN_PTR(getUncachedStringInPool)},
   {CC "getDeclaredMethods",                           CC "(" HS_KLASS2 ")[" RESOLVED_METHOD,                                                FN_PTR(getDeclaredMethods)},
   {CC "readStaticFieldValue",                         CC "(" HS_KLASS2 "JC)" JAVACONSTANT,                                                  FN_PTR(readStaticFieldValue)},
   {CC "readFieldValue",                               CC "(" OBJECTCONSTANT HS_KLASS2 "JC)" JAVACONSTANT,                                   FN_PTR(readFieldValue)},
