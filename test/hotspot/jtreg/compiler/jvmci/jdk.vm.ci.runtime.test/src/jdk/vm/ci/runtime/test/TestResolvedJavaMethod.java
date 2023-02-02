@@ -123,6 +123,7 @@ public class TestResolvedJavaMethod extends MethodUniverse {
                 assertEquals(expect, actual);
             }
         }
+        assertTrue(!unlinkedType.isLinked());
     }
 
     @Test
