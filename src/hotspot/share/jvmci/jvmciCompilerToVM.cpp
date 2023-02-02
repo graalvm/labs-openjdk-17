@@ -2784,7 +2784,6 @@ C2V_VMENTRY(void, notifyCompilerInliningEvent, (JNIEnv* env, jobject, jint compi
   }
 }
 
-
 C2V_VMENTRY(void, setThreadLocalObject, (JNIEnv* env, jobject, jint id, jobject value))
   requireInHotSpot("setThreadLocalObject", JVMCI_CHECK);
   if (id == 0) {
@@ -2793,15 +2792,6 @@ C2V_VMENTRY(void, setThreadLocalObject, (JNIEnv* env, jobject, jint id, jobject 
   }
   THROW_MSG(vmSymbols::java_lang_IllegalArgumentException(),
             err_msg("%d is not a valid thread local id", id));
-}
-
-C2V_VMENTRY_NULL(jobject, getThreadLocalObject, (JNIEnv* env, jobject, jint id))
-  requireInHotSpot("getThreadLocalObject", JVMCI_CHECK_NULL);
-  if (id == 0) {
-    return JNIHandles::make_local(thread->get_jvmci_reserved_oop0());
-  }
-  THROW_MSG_0(vmSymbols::java_lang_IllegalArgumentException(),
-              err_msg("%d is not a valid thread local id", id));
 }
 
 C2V_VMENTRY(void, setThreadLocalLong, (JNIEnv* env, jobject, jint id, jlong value))
@@ -2826,6 +2816,15 @@ C2V_VMENTRY_0(jlong, getThreadLocalLong, (JNIEnv* env, jobject, jint id))
     THROW_MSG_0(vmSymbols::java_lang_IllegalArgumentException(),
                 err_msg("%d is not a valid thread local id", id));
   }
+}
+
+C2V_VMENTRY_NULL(jobject, getThreadLocalObject, (JNIEnv* env, jobject, jint id))
+  requireInHotSpot("getThreadLocalObject", JVMCI_CHECK_NULL);
+  if (id == 0) {
+    return JNIHandles::make_local(thread->get_jvmci_reserved_oop0());
+  }
+  THROW_MSG_0(vmSymbols::java_lang_IllegalArgumentException(),
+              err_msg("%d is not a valid thread local id", id));
 }
 
 #define CC (char*)  /*cast a literal from (const char*)*/
