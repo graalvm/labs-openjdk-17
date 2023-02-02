@@ -1,7 +1,7 @@
 # https://github.com/graalvm/labs-openjdk-17/blob/master/doc/testing.md
 local run_test_spec = "test/hotspot/jtreg/compiler/jvmci test/jdk/tools/jlink/plugins";
 
-local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
+local labsjdk_builder_version = "2d6e93ddd626e9c0e9c862f1d80a5904e7a9165c";
 
 {
     overlay: "adc52f479f9d2b1f55985066bf95d454702c7a89",
@@ -236,14 +236,14 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         ] +
         build_labsjdk("release", "JAVA_HOME") +
         build_labsjdk("fastdebug", "JAVA_HOME_FASTDEBUG") +
-        [
+        (if !is_musl_build then [
             ["set-export", "PATH", "${OLD_PATH}"],
 
             # Prepare for publishing
             ["set-export", "JDK_HOME", conf.path("${PWD}/jdk_home")],
             ["cd", "${JAVA_HOME}"],
             conf.copydir(conf.jdk_home("."), "${JDK_HOME}")
-        ],
+        ] else []),
 
         publishArtifacts+: if !is_musl_build then [
             {
