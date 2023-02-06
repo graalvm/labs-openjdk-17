@@ -78,7 +78,7 @@ uint WorkerManager::add_workers(WorkGang* workers,
     if (initializing || !InjectGCWorkerCreationFailure) {
       new_worker = workers->install_worker(worker_id);
     }
-    if (new_worker == NULL || !os::create_thread(new_worker, worker_type)) {
+    if (new_worker == NULL || !os::create_thread(new_worker, worker_type, false)) {
       log_trace(gc, task)("WorkerManager::add_workers() : "
                           "creation failed due to failed allocation of native %s",
                           new_worker == NULL ? "memory" : "thread");

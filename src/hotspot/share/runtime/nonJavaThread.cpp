@@ -160,7 +160,7 @@ volatile bool  WatcherThread::_should_terminate = false;
 
 WatcherThread::WatcherThread() : NonJavaThread() {
   assert(watcher_thread() == NULL, "we can only allocate one WatcherThread");
-  if (os::create_thread(this, os::watcher_thread)) {
+  if (os::create_thread(this, os::watcher_thread, false)) {
     _watcher_thread = this;
 
     // Set the watcher thread to the highest OS priority which should not be

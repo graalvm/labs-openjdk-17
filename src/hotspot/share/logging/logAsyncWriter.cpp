@@ -80,7 +80,7 @@ AsyncLogWriter::AsyncLogWriter()
   : _flush_sem(0), _lock(), _data_available(false),
     _initialized(false),
     _stats(17 /*table_size*/) {
-  if (os::create_thread(this, os::asynclog_thread)) {
+  if (os::create_thread(this, os::asynclog_thread, false)) {
     _initialized = true;
   } else {
     log_warning(logging, thread)("AsyncLogging failed to create thread. Falling back to synchronous logging.");

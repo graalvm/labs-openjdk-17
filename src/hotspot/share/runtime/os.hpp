@@ -456,7 +456,7 @@ class os: AllStatic {
 
   static bool create_thread(Thread* thread,
                             ThreadType thr_type,
-                            size_t req_stack_size = 0);
+                            bool is_java_thread, size_t req_stack_size = 0);
 
   // The "main thread", also known as "starting thread", is the thread
   // that loads/creates the JVM via JNI_CreateJavaVM.

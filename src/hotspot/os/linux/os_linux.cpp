@@ -801,7 +801,7 @@ static size_t get_static_tls_area_size(const pthread_attr_t *attr) {
 }
 
 bool os::create_thread(Thread* thread, ThreadType thr_type,
-                       size_t req_stack_size) {
+                       bool is_java_thread, size_t req_stack_size) {
   assert(thread->osthread() == NULL, "caller responsible");
 
   // Allocate the OSThread object
@@ -822,6 +822,13 @@ bool os::create_thread(Thread* thread, ThreadType thr_type,
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+  if (is_java_thread) {
+    struct sched_param sched_parameter;
+    sched_parameter.sched_priority = sched_get_priority_max(SCHED_FIFO);
+    pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+    pthread_attr_setschedparam(&attr, &sched_parameter);
+  }
 
   // Calculate stack size if it's not specified by caller.
   size_t stack_size = os::Posix::get_initial_stack_size(thr_type, req_stack_size);

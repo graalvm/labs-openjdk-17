@@ -1201,7 +1201,7 @@ JavaThread::JavaThread(ThreadFunction entry_point, size_t stack_sz) : JavaThread
   os::ThreadType thr_type = os::java_thread;
   thr_type = entry_point == &CompilerThread::thread_entry ? os::compiler_thread :
                                                             os::java_thread;
-  os::create_thread(this, thr_type, stack_sz);
+  os::create_thread(this, thr_type, true, stack_sz);
   // The _osthread may be NULL here because we ran out of memory (too many threads active).
   // We need to throw and OutOfMemoryError - however we cannot do this here because the caller
   // may hold a lock and all locks must be unlocked before throwing the exception (throwing
@@ -2902,7 +2902,7 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
     VMThread::create();
     Thread* vmthread = VMThread::vm_thread();
 
-    if (!os::create_thread(vmthread, os::vm_thread)) {
+    if (!os::create_thread(vmthread, os::vm_thread, false)) {
       vm_exit_during_initialization("Cannot create VM thread. "
                                     "Out of system resources.");
     }

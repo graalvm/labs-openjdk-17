@@ -438,7 +438,7 @@ JavaThread* JfrThreadSampler::next_thread(ThreadsList* t_list, JavaThread* first
 }
 
 void JfrThreadSampler::start_thread() {
-  if (os::create_thread(this, os::os_thread)) {
+  if (os::create_thread(this, os::os_thread, false)) {
     os::start_thread(this);
   } else {
     log_error(jfr)("Failed to create thread for thread sampling");
