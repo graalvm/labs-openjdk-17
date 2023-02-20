@@ -333,40 +333,23 @@ class ExceptionTranslation: public StackObj {
       ResourceMark rm;
       jlong buffer = (jlong) NEW_RESOURCE_ARRAY_IN_THREAD_RETURN_NULL(THREAD, jbyte, buffer_size);
       if (buffer == 0L) {
-<<<<<<< HEAD
         decode(THREAD, vmSupport, 0L);
         return;
       }
       int res = encode(THREAD, vmSupport, buffer, buffer_size);
-=======
-        decode(THREAD, runtimeKlass, 0L);
-        return;
-      }
-      int res = encode(THREAD, runtimeKlass, buffer, buffer_size);
->>>>>>> jdk-17.0.7+2
       if (_from_env != nullptr && !_from_env->is_hotspot() && _from_env->has_pending_exception()) {
         // Cannot get name of exception thrown by `encode` as that involves
         // calling into libjvmci which in turn can raise another exception.
         _from_env->clear_pending_exception();
-<<<<<<< HEAD
         decode(THREAD, vmSupport, -2L);
-=======
-        decode(THREAD, runtimeKlass, -2L);
->>>>>>> jdk-17.0.7+2
         return;
       } else if (HAS_PENDING_EXCEPTION) {
         Symbol *ex_name = PENDING_EXCEPTION->klass()->name();
         CLEAR_PENDING_EXCEPTION;
         if (ex_name == vmSymbols::java_lang_OutOfMemoryError()) {
-<<<<<<< HEAD
           decode(THREAD, vmSupport, -1L);
         } else {
           decode(THREAD, vmSupport, -2L);
-=======
-          decode(THREAD, runtimeKlass, -1L);
-        } else {
-          decode(THREAD, runtimeKlass, -2L);
->>>>>>> jdk-17.0.7+2
         }
         return;
       } else if (res < 0) {
@@ -377,11 +360,7 @@ class ExceptionTranslation: public StackObj {
       } else {
         decode(THREAD, vmSupport, buffer);
         if (!_to_env->has_pending_exception()) {
-<<<<<<< HEAD
           _to_env->throw_InternalError("decodeAndThrowThrowable should have thrown an exception");
-=======
-          _to_env->throw_InternalError("HotSpotJVMCIRuntime.decodeAndThrowThrowable should have thrown an exception");
->>>>>>> jdk-17.0.7+2
         }
         return;
       }
