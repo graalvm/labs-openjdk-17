@@ -160,7 +160,11 @@ final class TranslatedException extends Exception {
      * Encodes {@code throwable} including its stack and causes as a {@linkplain GZIPOutputStream
      * compressed} byte array that can be decoded by {@link #decodeThrowable}.
      */
+<<<<<<< HEAD:src/java.base/share/classes/jdk/internal/vm/TranslatedException.java
     static byte[] encodeThrowable(Throwable throwable) {
+=======
+    static byte[] encodeThrowable(Throwable throwable) throws Throwable {
+>>>>>>> jdk-17.0.7+2:src/jdk.internal.vm.ci/share/classes/jdk.vm.ci.hotspot/src/jdk/vm/ci/hotspot/TranslatedException.java
         try {
             return encodeThrowable(throwable, true);
         } catch (OutOfMemoryError e) {
