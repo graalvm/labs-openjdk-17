@@ -1,0 +1,7 @@
+diff a/src/jdk.internal.vm.ci/share/classes/jdk/vm/ci/hotspot/aarch64/AArch64HotSpotVMConfig.java b/src/jdk.internal.vm.ci/share/classes/jdk/vm/ci/hotspot/aarch64/AArch64HotSpotVMConfig.java	(rejected hunks)
+@@ -66,5 +65,4 @@ class AArch64HotSpotVMConfig extends HotSpotVMConfigAccess {
+     final long aarch64CRC32 = getConstant("VM_Version::CPU_CRC32", Long.class);
+     final long aarch64LSE = getConstant("VM_Version::CPU_LSE", Long.class);
+     final long aarch64A53MAC = getConstant("VM_Version::CPU_A53MAC", Long.class);
+-    // Checkstyle: resume
+ }
