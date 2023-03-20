@@ -1169,16 +1169,19 @@ JVMCIObject JVMCIEnv::get_jvmci_method(const methodHandle& method, JVMCI_TRAPS) 
   if (method() == NULL) {
     return method_object;
   }
+  JavaThread* THREAD = JVMCI::compilation_tick(JavaThread::current()); // For exception macros.
+  JVMCIKlassHandle holder_klass(THREAD, method->method_holder());
+  JVMCIObject holder = get_jvmci_type(holder_klass, JVMCI_CHECK_(JVMCIObject()));
 
   CompilerOracle::tag_blackhole_if_possible(method);
 
-  JavaThread* THREAD = JVMCI::compilation_tick(JavaThread::current()); // For exception macros.
   jmetadata handle = _runtime->allocate_handle(method);
   jboolean exception = false;
   if (is_hotspot()) {
     JavaValue result(T_OBJECT);
     JavaCallArguments args;
     args.push_long((jlong) handle);
+    args.push_oop(Handle(THREAD, HotSpotJVMCI::resolve(holder)));
     JavaCalls::call_static(&result, HotSpotJVMCI::HotSpotResolvedJavaMethodImpl::klass(),
                            vmSymbols::fromMetaspace_name(),
                            vmSymbols::method_fromMetaspace_signature(), &args, THREAD);
@@ -1191,7 +1194,7 @@ JVMCIObject JVMCIEnv::get_jvmci_method(const methodHandle& method, JVMCI_TRAPS) 
     JNIAccessMark jni(this, THREAD);
     method_object = JNIJVMCI::wrap(jni()->CallStaticObjectMethod(JNIJVMCI::HotSpotResolvedJavaMethodImpl::clazz(),
                                                                   JNIJVMCI::HotSpotResolvedJavaMethodImpl_fromMetaspace_method(),
-                                                                  (jlong) handle));
+                                                                 (jlong) handle, holder.as_jobject()));
     exception = jni()->ExceptionCheck();
   }
 
@@ -1213,6 +1216,9 @@ JVMCIObject JVMCIEnv::get_jvmci_type(const JVMCIKlassHandle& klass, JVMCI_TRAPS)
   if (klass.is_null()) {
     return type;
   }
+
+  guarantee(klass->is_klass(), "must be valid klass");
+  guarantee(klass->is_loader_alive(), "klass must be alive");
 
   jlong pointer = (jlong) klass();
   JavaThread* THREAD = JVMCI::compilation_tick(JavaThread::current()); // For exception macros.
@@ -1571,6 +1577,9 @@ void JVMCIEnv::initialize_installed_code(JVMCIObject installed_code, CodeBlob* c
   set_HotSpotInstalledCode_codeSize(installed_code, cb->code_size());
 }
 
+MethodData* JVMCIEnv::asMethodData(JVMCIObject obj) {
+  return (MethodData*) get_HotSpotMethodData_methodDataPointer(obj);
+}
 
 void JVMCIEnv::invalidate_nmethod_mirror(JVMCIObject mirror, bool deoptimize, JVMCI_TRAPS) {
   if (mirror.is_null()) {

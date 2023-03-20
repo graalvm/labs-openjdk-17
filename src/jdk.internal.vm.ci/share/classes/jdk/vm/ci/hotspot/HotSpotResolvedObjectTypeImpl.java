@@ -221,7 +221,10 @@ final class HotSpotResolvedObjectTypeImpl extends HotSpotResolvedJavaType implem
             HotSpotResolvedObjectTypeImpl type = this;
             while (type.isAbstract()) {
                 HotSpotResolvedObjectTypeImpl subklass = type.getSubklass();
-                if (subklass == null || UNSAFE.getAddress(subklass.getKlassPointer() + config.nextSiblingOffset) != 0) {
+                if (subklass == null) {
+                    return null;
+                }
+                if (compilerToVM().getResolvedJavaType(subklass, config.nextSiblingOffset, false) != null) {
                     return null;
                 }
                 type = subklass;
@@ -253,7 +256,7 @@ final class HotSpotResolvedObjectTypeImpl extends HotSpotResolvedJavaType implem
      * @return true if the type is a leaf class
      */
     private boolean isLeafClass() {
-        return UNSAFE.getLong(this.getKlassPointer() + config().subklassOffset) == 0;
+        return compilerToVM().getResolvedJavaType(this, config().subklassOffset, false) == null;
     }
 
     /**
