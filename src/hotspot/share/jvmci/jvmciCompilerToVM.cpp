@@ -409,6 +409,7 @@ C2V_VMENTRY_NULL(jobject, getResolvedJavaType0, (JNIEnv* env, jobject, jobject b
     JVMCI_THROW_MSG_NULL(NullPointerException, "base object is null");
   }
 
+  const char* base_desc = nullptr;
   JVMCIKlassHandle klass(THREAD);
   if (offset == oopDesc::klass_offset_in_bytes()) {
     if (JVMCIENV->isa_HotSpotObjectConstantImpl(base_object)) {
@@ -423,6 +424,7 @@ C2V_VMENTRY_NULL(jobject, getResolvedJavaType0, (JNIEnv* env, jobject, jobject b
       if (offset == ConstantPool::pool_holder_offset_in_bytes()) {
         klass = cp->pool_holder();
       } else {
+        base_desc = FormatBufferResource("[constant pool for %s]", cp->pool_holder()->signature_name());
         goto unexpected;
       }
     } else if (JVMCIENV->isa_HotSpotResolvedObjectTypeImpl(base_object)) {
@@ -442,6 +444,7 @@ C2V_VMENTRY_NULL(jobject, getResolvedJavaType0, (JNIEnv* env, jobject, jobject b
         int index = (offset - in_bytes(Klass::primary_supers_offset())) / sizeof(Klass*);
         klass = base_klass->primary_super_of_depth(index);
       } else {
+        base_desc = FormatBufferResource("[%s]", base_klass->signature_name());
         goto unexpected;
       }
     } else if (JVMCIENV->isa_HotSpotObjectConstantImpl(base_object)) {
@@ -452,9 +455,13 @@ C2V_VMENTRY_NULL(jobject, getResolvedJavaType0, (JNIEnv* env, jobject, jobject b
         } else if (offset == java_lang_Class::array_klass_offset()) {
           klass = java_lang_Class::array_klass_acquire(base_oop());
         } else {
+          base_desc = FormatBufferResource("[Class=%s]", java_lang_Class::as_Klass(base_oop())->signature_name());
           goto unexpected;
         }
       } else {
+        if (!base_oop.is_null()) {
+          base_desc = FormatBufferResource("[%s]", base_oop()->klass()->signature_name());
+        }
         goto unexpected;
       }
     } else if (JVMCIENV->isa_HotSpotMethodData(base_object)) {
@@ -481,8 +488,8 @@ C2V_VMENTRY_NULL(jobject, getResolvedJavaType0, (JNIEnv* env, jobject, jobject b
 
 unexpected:
   JVMCI_THROW_MSG_NULL(IllegalArgumentException,
-                       err_msg("Unexpected arguments: %s " JLONG_FORMAT " %s",
-                               base_object.is_non_null() ? JVMCIENV->klass_name(base_object) : "null",
+                       err_msg("Unexpected arguments: %s%s " JLONG_FORMAT " %s",
+                               JVMCIENV->klass_name(base_object), base_desc == nullptr ? "" : base_desc,
                                offset, compressed ? "true" : "false"));
 }
 
