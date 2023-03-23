@@ -44,7 +44,7 @@ import jdk.vm.ci.meta.TriState;
 /**
  * Access to a HotSpot {@code MethodData} structure (defined in methodData.hpp).
  */
-final class HotSpotMethodData {
+final class HotSpotMethodData implements MetaspaceObject {
 
     /**
      * VM state that can be reset when building an AOT image.
@@ -172,6 +172,11 @@ final class HotSpotMethodData {
         this.methodDataPointer = methodDataPointer;
         this.method = method;
         this.state = VMState.instance();
+    }
+
+    @Override
+    public long getMetaspacePointer() {
+        return methodDataPointer;
     }
 
     /**
@@ -308,7 +313,7 @@ final class HotSpotMethodData {
 
     private HotSpotResolvedObjectTypeImpl readKlass(int position, int offsetInBytes) {
         long fullOffsetInBytes = state.computeFullOffset(position, offsetInBytes);
-        return compilerToVM().getResolvedJavaType(methodDataPointer + fullOffsetInBytes);
+        return compilerToVM().getResolvedJavaType(this, fullOffsetInBytes);
     }
 
     /**
