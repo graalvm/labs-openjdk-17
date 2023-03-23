@@ -441,7 +441,7 @@ C2V_VMENTRY_NULL(jobject, getResolvedJavaType0, (JNIEnv* env, jobject, jobject b
                  offset < in_bytes(Klass::primary_supers_offset()) + (int) (sizeof(Klass*) * Klass::primary_super_limit()) &&
                  offset % sizeof(Klass*) == 0) {
         // Offset is within the primary supers array
-        int index = (offset - in_bytes(Klass::primary_supers_offset())) / sizeof(Klass*);
+        int index = (int) ((offset - in_bytes(Klass::primary_supers_offset())) / sizeof(Klass*));
         klass = base_klass->primary_super_of_depth(index);
       } else {
         base_desc = FormatBufferResource("[%s]", base_klass->signature_name());
