@@ -117,6 +117,10 @@ class oopDesc {
   // field addresses in oop
   inline void* field_addr(int offset) const;
 
+  // Backport of templating version of field_addr
+  template<typename T>
+  inline T* field_addr_of_type(int offset) const;
+
   // Need this as public for garbage collection.
   template <class T> inline T* obj_field_addr(int offset) const;
 

@@ -211,6 +211,9 @@ void*    oopDesc::field_addr(int offset)     const { return reinterpret_cast<voi
 template <class T>
 T*       oopDesc::obj_field_addr(int offset) const { return (T*) field_addr(offset); }
 
+template<typename T>
+T*       oopDesc::field_addr_of_type(int offset)     const { return reinterpret_cast<T*>(cast_from_oop<intptr_t>(as_oop()) + offset); }
+
 template <typename T>
 size_t   oopDesc::field_offset(T* p) const { return pointer_delta((void*)p, (void*)this, 1); }
 
