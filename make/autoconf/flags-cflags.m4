@@ -640,12 +640,8 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
   # JDK libraries.
   STATIC_LIBS_CFLAGS="-DSTATIC_BUILD=1"
   if test "x$TOOLCHAIN_TYPE" = xgcc || test "x$TOOLCHAIN_TYPE" = xclang; then
-<<<<<<< HEAD
-    STATIC_LIBS_CFLAGS="$STATIC_LIBS_CFLAGS -ffunction-sections -fdata-sections"
-=======
     STATIC_LIBS_CFLAGS="$STATIC_LIBS_CFLAGS -ffunction-sections -fdata-sections \
       -DJNIEXPORT='__attribute__((visibility(\"default\")))'"
->>>>>>> jdk-17.0.7+7
   else
     STATIC_LIBS_CFLAGS="$STATIC_LIBS_CFLAGS -DJNIEXPORT="
   fi
