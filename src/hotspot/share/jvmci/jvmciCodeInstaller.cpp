@@ -774,7 +774,7 @@ JVMCI::CodeInstallResult CodeInstaller::install(JVMCICompiler* compiler,
             JVMCI_THROW_MSG_(IllegalArgumentException, "nmethod entry barrier is not required", JVMCI::ok);
           }
 
-          FormatBuffer<> msg("%s", "");
+          err_msg msg("%s", "");
           if (!bs_nm->verify_barrier(nm, msg)) {
             JVMCI_THROW_MSG_(IllegalArgumentException, err_msg("nmethod entry barrier is malformed: %s", msg.buffer()), JVMCI::ok);
           }

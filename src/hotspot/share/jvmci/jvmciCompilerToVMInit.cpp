@@ -26,13 +26,15 @@
 #include "compiler/compiler_globals.hpp"
 #include "compiler/oopMap.hpp"
 #include "gc/shared/barrierSet.hpp"
+#include "gc/shared/barrierSetNMethod.hpp"
 #include "gc/shared/cardTable.hpp"
 #include "gc/shared/collectedHeap.hpp"
 #include "gc/shared/gc_globals.hpp"
 #include "gc/shared/tlab_globals.hpp"
-#include "gc/shared/barrierSetNMethod.hpp"
+#if INCLUDE_ZGC
 #include "gc/z/zThreadLocalData.hpp"
 #include "gc/z/zBarrierSetRuntime.hpp"
+#endif
 #include "jvmci/jvmciEnv.hpp"
 #include "jvmci/jvmciCompilerToVM.hpp"
 #include "jvmci/vmStructs_jvmci.hpp"
@@ -132,6 +134,7 @@ void CompilerToVM::Data::initialize(JVMCI_TRAPS) {
     AARCH64_ONLY(nmethod_entry_barrier = StubRoutines::aarch64::method_entry_barrier());
   }
 
+#if INCLUDE_ZGC
   if (UseZGC) {
     thread_address_bad_mask_offset = in_bytes(ZThreadLocalData::address_bad_mask_offset());
     ZBarrierSetRuntime_load_barrier_on_oop_field_preloaded =                     ZBarrierSetRuntime::load_barrier_on_oop_field_preloaded_addr();
@@ -143,6 +146,7 @@ void CompilerToVM::Data::initialize(JVMCI_TRAPS) {
     ZBarrierSetRuntime_load_barrier_on_oop_array =                               ZBarrierSetRuntime::load_barrier_on_oop_array_addr();
     ZBarrierSetRuntime_clone =                                                   ZBarrierSetRuntime::clone_addr();
   }
+#endif
 
   ThreadLocalAllocBuffer_alignment_reserve = ThreadLocalAllocBuffer::alignment_reserve();
 

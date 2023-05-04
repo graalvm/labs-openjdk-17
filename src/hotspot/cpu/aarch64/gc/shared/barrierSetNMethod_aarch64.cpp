@@ -86,9 +86,9 @@ public:
     Atomic::release_store(guard_addr(), value);
   }
 
-  bool check_barrier(FormatBuffer<>& msg) const;
+  bool check_barrier(err_msg& msg) const;
   void verify() const {
-    FormatBuffer<> msg("%s", "");
+    err_msg msg("%s", "");
     assert(check_barrier(msg), "%s", msg.buffer());
   }
 };
@@ -195,7 +195,7 @@ bool BarrierSetNMethod::is_armed(nmethod* nm) {
 
 
 #if INCLUDE_JVMCI
-bool BarrierSetNMethod::verify_barrier(nmethod* nm, FormatBuffer<>& msg) {
+bool BarrierSetNMethod::verify_barrier(nmethod* nm, err_msg& msg) {
   NativeNMethodBarrier barrier(nm);
   return barrier.check_barrier(msg);
 }
