@@ -730,7 +730,10 @@ JVMCI::CodeInstallResult CodeInstaller::install(JVMCICompiler* compiler,
     // that JIT compiled methods must have an nmethod barrier.
     bool install_default = JVMCIENV->get_HotSpotNmethod_isDefault(installed_code) != 0;
     if (_nmethod_entry_patch_offset == -1 && install_default) {
-      JVMCI_THROW_MSG_(IllegalArgumentException, "nmethod entry barrier is missing", JVMCI::ok);
+      BarrierSetNMethod* bs_nm = BarrierSet::barrier_set()->barrier_set_nmethod();
+      if (bs_nm != nullptr) {
+        JVMCI_THROW_MSG_(IllegalArgumentException, "nmethod entry barrier is missing", JVMCI::ok);
+      }
     }
 
     JVMCIObject mirror = installed_code;
