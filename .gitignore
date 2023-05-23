@@ -14,9 +14,10 @@ test/nashorn/script/external
 test/nashorn/lib
 NashornProfile.txt
 /src/utils/LogCompilation/target/
+/compile_commands.json
+/.cache
 **/JTreport/**
 **/JTwork/**
-<<<<<<< HEAD
 +/mxbuild/
 **/.checkstyle
 **/.classpath
@@ -28,10 +29,3 @@ NashornProfile.txt
 **/.pydevproject
 **/.settings/
 **/*.pyc
-=======
-/src/utils/LogCompilation/target/
-/.project/
-/.settings/
-/compile_commands.json
-/.cache
->>>>>>> jdk-17.0.8+3
