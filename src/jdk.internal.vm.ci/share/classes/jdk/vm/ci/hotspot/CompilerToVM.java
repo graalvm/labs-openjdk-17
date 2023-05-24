@@ -936,6 +936,9 @@ final class CompilerToVM {
      */
     native int interpreterFrameSize(BytecodeFrame frame);
 
+
+    native int methodDataExceptionSeen(long metaspaceMethodData, int bci);
+
     /**
      * Invokes non-public method {@code java.lang.invoke.LambdaForm.compileToBytecode()} on
      * {@code lambdaForm} (which must be a {@code java.lang.invoke.LambdaForm} instance).

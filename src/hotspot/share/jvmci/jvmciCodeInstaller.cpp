@@ -725,9 +725,15 @@ JVMCI::CodeInstallResult CodeInstaller::install(JVMCICompiler* compiler,
       JVMCI_THROW_MSG_(IllegalArgumentException, "InstalledCode object must be a HotSpotNmethod when installing a HotSpotCompiledNmethod", JVMCI::ok);
     }
 
-    if (UseZGC && _nmethod_entry_patch_offset == -1) {
-      // ZGC requires the use of entry barriers for correctness
-      JVMCI_THROW_MSG_(IllegalArgumentException, "InstalledCode entry barrier is missing", JVMCI::ok);
+    // We would like to be strict about the nmethod entry barrier but there are various test
+    // configurations which generate assembly without being a full compiler. So for now we enforce
+    // that JIT compiled methods must have an nmethod barrier.
+    bool install_default = JVMCIENV->get_HotSpotNmethod_isDefault(installed_code) != 0;
+    if (_nmethod_entry_patch_offset == -1 && install_default) {
+      BarrierSetNMethod* bs_nm = BarrierSet::barrier_set()->barrier_set_nmethod();
+      if (bs_nm != nullptr) {
+        JVMCI_THROW_MSG_(IllegalArgumentException, "nmethod entry barrier is missing", JVMCI::ok);
+      }
     }
 
     JVMCIObject mirror = installed_code;
@@ -771,7 +777,7 @@ JVMCI::CodeInstallResult CodeInstaller::install(JVMCICompiler* compiler,
             JVMCI_THROW_MSG_(IllegalArgumentException, "nmethod entry barrier is not required", JVMCI::ok);
           }
 
-          FormatBuffer<> msg("%s", "");
+          err_msg msg("%s", "");
           if (!bs_nm->verify_barrier(nm, msg)) {
             JVMCI_THROW_MSG_(IllegalArgumentException, err_msg("nmethod entry barrier is malformed: %s", msg.buffer()), JVMCI::ok);
           }

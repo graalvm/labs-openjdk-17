@@ -60,15 +60,17 @@ public:
 
   jint get_immedate() const { return int_at(imm_offset); }
   void set_immediate(jint imm) { set_int_at(imm_offset, imm); }
-  bool check_barrier(FormatBuffer<>& msg) const;
+  bool check_barrier(err_msg& msg) const;
   void verify() const {
-    FormatBuffer<> msg("%s", "");
+#ifdef ASSERT
+    err_msg msg("%s", "");
     assert(check_barrier(msg), "%s", msg.buffer());
+#endif
   }
 };
 
 #ifdef _LP64
-bool NativeNMethodCmpBarrier::check_barrier(FormatBuffer<>& msg) const {
+bool NativeNMethodCmpBarrier::check_barrier(err_msg& msg) const {
   // Only require 4 byte alignment
   if (((uintptr_t) instruction_address()) & 0x3) {
     msg.print("Addr: " INTPTR_FORMAT " not properly aligned", p2i(instruction_address()));
@@ -199,7 +201,7 @@ bool BarrierSetNMethod::is_armed(nmethod* nm) {
 
 
 #if INCLUDE_JVMCI
-bool BarrierSetNMethod::verify_barrier(nmethod* nm, FormatBuffer<>& msg) {
+bool BarrierSetNMethod::verify_barrier(nmethod* nm, err_msg& msg) {
   NativeNMethodCmpBarrier* barrier = native_nmethod_barrier(nm);
   return barrier->check_barrier(msg);
 }
