@@ -37,17 +37,6 @@ suite = {
 
         # ------------- JVMCI:API -------------
 
-        "jdk.vm.ci.common" : {
-            "subDir" : "src/jdk.internal.vm.ci/share/classes",
-            "sourceDirs" : ["src"],
-            "dependencies" : [
-              "jdk.vm.ci.services",
-            ],
-            "checkstyle" : "jdk.vm.ci.services",
-            "javaCompliance" : "17+",
-            "workingSets" : "API,JVMCI",
-        },
-
         "jdk.vm.ci.meta" : {
             "subDir" : "src/jdk.internal.vm.ci/share/classes",
             "sourceDirs" : ["src"],
@@ -56,87 +45,12 @@ suite = {
             "workingSets" : "API,JVMCI",
         },
 
-        "jdk.vm.ci.code" : {
-            "subDir" : "src/jdk.internal.vm.ci/share/classes",
-            "sourceDirs" : ["src"],
-            "dependencies" : ["jdk.vm.ci.meta", "jdk.vm.ci.common"],
-            "checkstyle" : "jdk.vm.ci.services",
-            "javaCompliance" : "17+",
-            "workingSets" : "API,JVMCI",
-        },
-
-        "jdk.vm.ci.code.test" : {
-            "subDir" : "test/hotspot/jtreg/compiler/jvmci",
-            "sourceDirs" : ["src"],
-            "dependencies" : [
-                "mx:JUNIT",
-                "jdk.vm.ci.amd64",
-                "jdk.vm.ci.code",
-                "jdk.vm.ci.hotspot",
-            ],
-            "checkstyle" : "jdk.vm.ci.services",
-            "javaCompliance" : "17+",
-            "workingSets" : "API,JVMCI",
-        },
-
-        "jdk.vm.ci.runtime" : {
-            "subDir" : "src/jdk.internal.vm.ci/share/classes",
-            "sourceDirs" : ["src"],
-            "dependencies" : [
-                "jdk.vm.ci.code",
-            ],
-            "checkstyle" : "jdk.vm.ci.services",
-            "javaCompliance" : "17+",
-            "workingSets" : "API,JVMCI",
-        },
-
-        "jdk.vm.ci.runtime.test" : {
-            "subDir" : "test/hotspot/jtreg/compiler/jvmci",
-            "sourceDirs" : ["src"],
-            "requiresConcealed" : {
-                "java.base" : [
-                    "jdk.internal.reflect",
-                    "jdk.internal.misc",
-                    "jdk.internal.org.objectweb.asm"
-                ],
-            },
-            "dependencies" : [
-                "mx:JUNIT",
-                "TESTNG",
-                "jdk.vm.ci.common",
-                "jdk.vm.ci.runtime",
-            ],
-            "checkstyle" : "jdk.vm.ci.services",
-            "javaCompliance" : "17+",
-            "workingSets" : "API,JVMCI",
-        },
-
         # ------------- JVMCI:HotSpot -------------
-
-        "jdk.vm.ci.aarch64" : {
-            "subDir" : "src/jdk.internal.vm.ci/share/classes",
-            "sourceDirs" : ["src"],
-            "dependencies" : ["jdk.vm.ci.code"],
-            "checkstyle" : "jdk.vm.ci.services",
-            "javaCompliance" : "17+",
-            "workingSets" : "JVMCI,AArch64",
-        },
-
-        "jdk.vm.ci.amd64" : {
-            "subDir" : "src/jdk.internal.vm.ci/share/classes",
-            "sourceDirs" : ["src"],
-            "dependencies" : ["jdk.vm.ci.code"],
-            "checkstyle" : "jdk.vm.ci.services",
-            "javaCompliance" : "17+",
-            "workingSets" : "JVMCI,AMD64",
-        },
 
         "jdk.vm.ci.hotspot" : {
             "subDir" : "src/jdk.internal.vm.ci/share/classes",
             "sourceDirs" : ["src"],
-            "dependencies" : [
-                "jdk.vm.ci.runtime",
-            ],
+            "dependencies" : [],
             "requiresConcealed" : {
                 "java.base" : [
                     "jdk.internal.misc",
@@ -160,36 +74,11 @@ suite = {
             "dependencies" : [
                 "mx:JUNIT",
                 "TESTNG",
-                "jdk.vm.ci.code.test",
                 "jdk.vm.ci.hotspot",
             ],
             "checkstyle" : "jdk.vm.ci.services",
             "javaCompliance" : "17+",
             "workingSets" : "API,JVMCI",
-        },
-
-        "jdk.vm.ci.hotspot.aarch64" : {
-            "subDir" : "src/jdk.internal.vm.ci/share/classes",
-            "sourceDirs" : ["src"],
-            "dependencies" : [
-                "jdk.vm.ci.aarch64",
-                "jdk.vm.ci.hotspot",
-            ],
-            "checkstyle" : "jdk.vm.ci.services",
-            "javaCompliance" : "17+",
-            "workingSets" : "JVMCI,HotSpot,AArch64",
-        },
-
-        "jdk.vm.ci.hotspot.amd64" : {
-            "subDir" : "src/jdk.internal.vm.ci/share/classes",
-            "sourceDirs" : ["src"],
-            "dependencies" : [
-                "jdk.vm.ci.amd64",
-                "jdk.vm.ci.hotspot",
-            ],
-            "checkstyle" : "jdk.vm.ci.services",
-            "javaCompliance" : "17+",
-            "workingSets" : "JVMCI,HotSpot,AMD64",
         },
     },
     "distributions": {
@@ -200,15 +89,8 @@ suite = {
             },
             "subDir" : "src/",
             "dependencies" : [
-                "jdk.vm.ci.aarch64",
-                "jdk.vm.ci.amd64",
-                "jdk.vm.ci.code",
-                "jdk.vm.ci.common",
                 "jdk.vm.ci.hotspot",
-                "jdk.vm.ci.hotspot.aarch64",
-                "jdk.vm.ci.hotspot.amd64",
                 "jdk.vm.ci.meta",
-                "jdk.vm.ci.runtime",
                 "jdk.vm.ci.services",
             ],
         },
