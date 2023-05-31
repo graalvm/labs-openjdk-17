@@ -14,6 +14,8 @@ test/nashorn/script/external
 test/nashorn/lib
 NashornProfile.txt
 /src/utils/LogCompilation/target/
+/compile_commands.json
+/.cache
 **/JTreport/**
 **/JTwork/**
 +/mxbuild/

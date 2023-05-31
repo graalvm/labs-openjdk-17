@@ -279,5 +279,4 @@ public class RISCV64 extends Architecture {
             return null;
         }
     }
-    
 }

@@ -70,7 +70,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
         },
         packages+: if for_jdk_build then {
             # devkit_platform_revisions in make/conf/jib-profiles.js
-            "devkit:gcc10.3.0-OL6.4+1" : "==0"
+            "devkit:gcc11.2.0-OL6.4+1" : "==0"
         } else {
             # When building/testing GraalVM, do not use a devkit as it is known not to
             # work well when dynamically linking libstdc++.
@@ -80,7 +80,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
     LinuxAArch64(for_jdk_build):: self.Linux + self.AArch64 {
         packages+: if for_jdk_build then {
             # devkit_platform_revisions in make/conf/jib-profiles.js
-            "devkit:gcc10.3.0-OL7.6+1" : "==0"
+            "devkit:gcc11.2.0-OL7.6+1" : "==0"
         } else {
             # See GR-26071 as well as comment in self.LinuxAMD64
             devtoolset: "==7"
@@ -261,7 +261,7 @@ local labsjdk_builder_version = "e9c60b5174490f2012c7c5d60a20aace93209a56";
     },
 
     # Downstream Graal branch to test against.
-    local downstream_branch = "me/GR-42125_downstream",
+    local downstream_branch = "bh/GR-46242",
 
     local clone_graal = {
         run+: [
