@@ -69,5 +69,4 @@ class AArch64HotSpotVMConfig extends HotSpotVMConfigAccess {
     final long aarch64LSE = getConstant("VM_Version::CPU_LSE", Long.class);
     final long aarch64STXR_PREFETCH = getConstant("VM_Version::CPU_STXR_PREFETCH", Long.class);
     final long aarch64A53MAC = getConstant("VM_Version::CPU_A53MAC", Long.class);
-    // Checkstyle: resume
 }

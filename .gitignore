@@ -29,3 +29,5 @@ NashornProfile.txt
 **/.pydevproject
 **/.settings/
 **/*.pyc
+/compile_commands.json
+/.cache
