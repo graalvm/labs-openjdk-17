@@ -318,8 +318,6 @@ static bool print_code(outputStream* st, Thread* thread, address pc, bool is_cra
   return false;
 }
 
-<<<<<<< HEAD
-=======
 // Like above, but only try to figure out a short name. Return nullptr if not found.
 static const char* find_code_name(address pc) {
   if (Interpreter::contains(pc)) {
@@ -341,7 +339,6 @@ static const char* find_code_name(address pc) {
   return nullptr;
 }
 
->>>>>>> jdk-17.0.9+1
 /**
  * Gets the caller frame of `fr`.
  *
@@ -956,8 +953,6 @@ void VMError::report(outputStream* st, bool _verbose) {
        // value outside the range.
        int limit = MIN2(ErrorLogPrintCodeLimit, printed_capacity);
        if (limit > 0) {
-<<<<<<< HEAD
-=======
          // Check if a pc was found by native stack trace above.
          if (lastpc != nullptr) {
            if (print_code(st, _thread, lastpc, true, printed, printed_capacity)) {
@@ -965,7 +960,6 @@ void VMError::report(outputStream* st, bool _verbose) {
            }
          }
 
->>>>>>> jdk-17.0.9+1
          // Scan the native stack
          if (!_print_native_stack_used) {
            // Only try to print code of the crashing frame since
