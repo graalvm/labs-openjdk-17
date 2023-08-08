@@ -45,7 +45,7 @@
 #include "runtime/init.hpp"
 #include "runtime/os.hpp"
 #include "runtime/osThread.hpp"
-#include "runtime/safefetch.inline.hpp"
+#include "runtime/safefetch.hpp"
 #include "runtime/safepointMechanism.hpp"
 #include "runtime/stackFrameStream.inline.hpp"
 #include "runtime/thread.inline.hpp"
@@ -98,6 +98,8 @@ static const char* env_list[] = {
   // All platforms
   "JAVA_HOME", "JAVA_TOOL_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH",
   "PATH", "USERNAME",
+
+  "XDG_CACHE_HOME", "XDG_CONFIG_HOME", "FC_LANG", "FONTCONFIG_USE_MMAP",
 
   // Env variables that are defined on Linux/BSD
   "LD_LIBRARY_PATH", "LD_PRELOAD", "SHELL", "DISPLAY",
@@ -316,6 +318,30 @@ static bool print_code(outputStream* st, Thread* thread, address pc, bool is_cra
   return false;
 }
 
+<<<<<<< HEAD
+=======
+// Like above, but only try to figure out a short name. Return nullptr if not found.
+static const char* find_code_name(address pc) {
+  if (Interpreter::contains(pc)) {
+    InterpreterCodelet* codelet = Interpreter::codelet_containing(pc);
+    if (codelet != nullptr) {
+      return codelet->description();
+    }
+  } else {
+    StubCodeDesc* desc = StubCodeDesc::desc_for(pc);
+    if (desc != nullptr) {
+      return desc->name();
+    } else {
+      CodeBlob* cb = CodeCache::find_blob(pc);
+      if (cb != nullptr) {
+        return cb->name();
+      }
+    }
+  }
+  return nullptr;
+}
+
+>>>>>>> jdk-17.0.9+1
 /**
  * Gets the caller frame of `fr`.
  *
@@ -531,6 +557,10 @@ void VMError::report(outputStream* st, bool _verbose) {
   // don't allocate large buffer on stack
   static char buf[O_BUFLEN];
 
+  // Native stack trace may get stuck. We try to handle the last pc if it
+  // belongs to VM generated code.
+  address lastpc = nullptr;
+
   BEGIN
 
   STEP("printing fatal error message")
@@ -588,18 +618,14 @@ void VMError::report(outputStream* st, bool _verbose) {
     // to test that resetting the signal handler works correctly.
     if (_verbose && TestSafeFetchInErrorHandler) {
       st->print_cr("Will test SafeFetch...");
-      if (CanUseSafeFetch32()) {
-        int* const invalid_pointer = (int*)segfault_address;
-        const int x = 0x76543210;
-        int i1 = SafeFetch32(invalid_pointer, x);
-        int i2 = SafeFetch32(invalid_pointer, x);
-        if (i1 == x && i2 == x) {
-          st->print_cr("SafeFetch OK."); // Correctly deflected and returned default pattern
-        } else {
-          st->print_cr("??");
-        }
+      int* const invalid_pointer = (int*)segfault_address;
+      const int x = 0x76543210;
+      int i1 = SafeFetch32(invalid_pointer, x);
+      int i2 = SafeFetch32(invalid_pointer, x);
+      if (i1 == x && i2 == x) {
+        st->print_cr("SafeFetch OK."); // Correctly deflected and returned default pattern
       } else {
-        st->print_cr("not possible; skipped.");
+        st->print_cr("??");
       }
     }
 #endif // ASSERT
@@ -827,9 +853,16 @@ void VMError::report(outputStream* st, bool _verbose) {
   STEP("printing native stack")
 
    if (_verbose) {
-     if (os::platform_print_native_stack(st, _context, buf, sizeof(buf))) {
+     if (os::platform_print_native_stack(st, _context, buf, sizeof(buf), lastpc)) {
        // We have printed the native stack in platform-specific code
        // Windows/x64 needs special handling.
+       // Stack walking may get stuck. Try to find the calling code.
+       if (lastpc != nullptr) {
+         const char* name = find_code_name(lastpc);
+         if (name != nullptr) {
+           st->print_cr("The last pc belongs to %s (printed below).", name);
+         }
+       }
      } else {
        frame fr = _context ? os::fetch_frame_from_context(_context)
                            : os::current_frame();
@@ -923,6 +956,16 @@ void VMError::report(outputStream* st, bool _verbose) {
        // value outside the range.
        int limit = MIN2(ErrorLogPrintCodeLimit, printed_capacity);
        if (limit > 0) {
+<<<<<<< HEAD
+=======
+         // Check if a pc was found by native stack trace above.
+         if (lastpc != nullptr) {
+           if (print_code(st, _thread, lastpc, true, printed, printed_capacity)) {
+             printed_len++;
+           }
+         }
+
+>>>>>>> jdk-17.0.9+1
          // Scan the native stack
          if (!_print_native_stack_used) {
            // Only try to print code of the crashing frame since

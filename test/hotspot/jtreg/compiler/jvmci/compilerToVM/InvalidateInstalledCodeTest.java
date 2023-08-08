@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -37,9 +37,16 @@
  *          jdk.internal.vm.ci/jdk.vm.ci.runtime
  *
  * @build jdk.internal.vm.ci/jdk.vm.ci.hotspot.CompilerToVMHelper
+<<<<<<< HEAD
  * @build sun.hotspot.WhiteBox
  * @run driver jdk.test.lib.helpers.ClassFileInstaller sun.hotspot.WhiteBox
  * @run junit/othervm -Xbootclasspath/a:.
+=======
+ * @build compiler.jvmci.compilerToVM.InvalidateInstalledCodeTest
+ * @build jdk.test.whitebox.WhiteBox
+ * @run driver jdk.test.lib.helpers.ClassFileInstaller jdk.test.whitebox.WhiteBox
+ * @run main/othervm -Xbootclasspath/a:.
+>>>>>>> jdk-17.0.9+1
  *                   -XX:+UnlockDiagnosticVMOptions -XX:+WhiteBoxAPI
  *                   -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI
  *                   compiler.jvmci.compilerToVM.InvalidateInstalledCodeTest
@@ -57,9 +64,13 @@ import jdk.vm.ci.code.site.DataPatch;
 import jdk.vm.ci.hotspot.CompilerToVMHelper;
 import jdk.vm.ci.hotspot.HotSpotJVMCIRuntime;
 import jdk.vm.ci.hotspot.HotSpotResolvedJavaMethod;
+<<<<<<< HEAD
 import jdk.vm.ci.hotspot.HotSpotCompiledCode.Comment;
 import jdk.vm.ci.hotspot.HotSpotNmethod;
 import jdk.vm.ci.meta.Assumptions.Assumption;
+=======
+import jdk.test.whitebox.code.NMethod;
+>>>>>>> jdk-17.0.9+1
 
 import java.util.List;
 import org.junit.Test;
